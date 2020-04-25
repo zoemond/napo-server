@@ -4,7 +4,8 @@
     "description": "インスタンスにそのまま乗っける想定のナポサーバ",
     "main": "index.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "build": "webpack --config ./webpack/prod.config.js",
+        "start": "npm run build && node dist/index.js"
     },
     "author": "",
     "license": "ISC",
