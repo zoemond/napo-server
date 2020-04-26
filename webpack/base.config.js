@@ -33,5 +33,8 @@ module.exports = {
     },
     resolve: {
         extensions: [".ts", ".js", ".json"],
+        alias: {
+            '@': path.resolve(__dirname, SRC_ROOT),
+        }
     }
 };

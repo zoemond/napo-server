@@ -1,6 +1,6 @@
 import express from 'express';
 import path from 'path';
-import { testQuery } from './repository/test';
+import { testQuery } from '@/repository/test';
 
 const app = express();
 const PORT = process.env.PORT || 7000;
