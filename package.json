@@ -5,7 +5,9 @@
     "main": "index.js",
     "scripts": {
         "build": "webpack --config ./webpack/prod.config.js",
-        "start": "npm run build && node dist/index.js"
+        "start": "npm run build && node dist/index.js",
+        "demon": "nodemon -L",
+        "build:watch": "webpack --watch --config ./webpack/dev.config.js"
     },
     "author": "",
     "license": "ISC",
