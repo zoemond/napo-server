@@ -1,6 +1,6 @@
 import mysql from 'mysql2';
 const dbConfig = require('../../db/db-config.json');
 
-const connection = mysql.createConnection(dbConfig);
+const pool = mysql.createPool(dbConfig);
 
-export default connection;
+export default pool;

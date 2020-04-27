@@ -8,8 +8,12 @@ echo '{
     "host": "127.0.0.1",
     "user": "", // ローカル環境に合わす
     "password": "", // ローカル環境に合わす
-    "database": "napo"
-}' >  db/db-config.json
+    "database": "napo",
+    "waitForConnections": true,
+    "connectionLimit": 10,
+    "queueLimit": 0
+}
+' >  db/db-config.json
 ```
 ## Server
 1. `npm i`
