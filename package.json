@@ -10,6 +10,10 @@
         "build:watch": "webpack --watch --config ./webpack/dev.config.js"
     },
     "author": "",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/zoemond/napo-server"
+    },
     "license": "ISC",
     "devDependencies": {
         "@types/express": "^4.17.6",
