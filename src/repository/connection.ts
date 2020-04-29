@@ -1,5 +1,5 @@
-import mysql from 'mysql2';
-const dbConfig = require('../../db/db-config.json');
+import mysql from "mysql2/promise";
+import dbConfig from "../../db/db-config.json";
 
 const pool = mysql.createPool(dbConfig);
 
