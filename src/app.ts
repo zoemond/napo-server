@@ -9,6 +9,7 @@ const io = socketIO(server);
 io.on("connection", (socket: socketIO.Socket) => {
   wsGameTableEvents.setCreateGameTableEvent(socket, io);
   wsGameTableEvents.setReadGameTablesEvent(socket, io);
+  wsGameTableEvents.setSitDownEvent(socket, io);
 });
 
 server.listen(PORT, function () {

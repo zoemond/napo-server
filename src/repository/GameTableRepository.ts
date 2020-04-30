@@ -28,4 +28,39 @@ export default class GameTableRepository {
     const [okPacket] = await connection.execute<OkPacket>(query);
     return okPacket.insertId;
   }
+
+  async sitDown(
+    gameTableId: number,
+    seat: string,
+    playerName: string
+  ): Promise<number> {
+    console.log(gameTableId, seat, playerName);
+
+    const seatColumn = this.seatToColumnName(seat);
+    const query = `
+    UPDATE game_tables 
+        SET ${seatColumn} = '${playerName}'
+        WHERE game_tables.id = ${gameTableId}
+        ;`;
+    const [okPacket] = await connection.execute<OkPacket>(query);
+    console.log("okPacket: ", okPacket);
+    return okPacket.insertId;
+  }
+
+  private seatToColumnName(seat: string): string {
+    switch (seat) {
+      case "seatFirst":
+        return "seat_first";
+      case "seatSecond":
+        return "seat_second";
+      case "seatThird":
+        return "seat_third";
+      case "seatFourth":
+        return "seat_fourth";
+      case "seatFifth":
+        return "seat_fifth";
+      default:
+        throw new Error("席名をカラム名に変換できません:" + seat);
+    }
+  }
 }

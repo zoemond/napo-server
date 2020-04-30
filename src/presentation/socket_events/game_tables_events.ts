@@ -22,6 +22,19 @@ async function createGameTable(): Promise<GameTablesResponse> {
   return readGameTables();
 }
 
+async function sitDown(
+  gameTableId: number,
+  seat: string,
+  userName: string
+): Promise<GameTablesResponse> {
+  try {
+    await gameTableRepository.sitDown(gameTableId, seat, userName);
+  } catch (error) {
+    return { errorMessage: error.message };
+  }
+  return readGameTables();
+}
+
 export function setCreateGameTableEvent(
   socket: socketIO.Socket,
   io: SocketIO.Server
@@ -38,6 +51,18 @@ export function setReadGameTablesEvent(
 ): void {
   socket.on("read_game_tables", async () => {
     const response = await readGameTables();
+    io.emit("game_tables", response);
+  });
+}
+
+export function setSitDownEvent(
+  socket: socketIO.Socket,
+  io: SocketIO.Server
+): void {
+  socket.on("sit_down", async (sitDownRequests) => {
+    const { gameTableId, seat, playerName } = sitDownRequests[0]; //一つ送ってもArrayになるので
+
+    const response = await sitDown(gameTableId, seat, playerName);
     io.emit("game_tables", response);
   });
 }
