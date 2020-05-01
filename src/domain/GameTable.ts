@@ -23,4 +23,14 @@ export default class GameTable {
   seatThird: string;
   seatFourth: string;
   seatFifth: string;
+
+  isAllSitDown(): boolean {
+    return !!(
+      this.seatFifth &&
+      this.seatSecond &&
+      this.seatThird &&
+      this.seatFourth &&
+      this.seatFifth
+    );
+  }
 }

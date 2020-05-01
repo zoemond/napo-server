@@ -1,7 +1,7 @@
 import GameTable from "@/domain/GameTable";
 import { ErrorResponse } from "@/presentation/response/ErrorResponse";
 
-type GameTablesSuccessResponse = {
+export type GameTablesSuccessResponse = {
   gameTables: GameTable[];
 };
 

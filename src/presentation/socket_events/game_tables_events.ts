@@ -1,6 +1,12 @@
 import socketIO from "socket.io";
-import { GameTablesResponse } from "../response/GameTablesResponse";
+import {
+  GameTablesResponse,
+  GameTablesSuccessResponse,
+} from "../response/GameTablesResponse";
 import GameTableRepository from "@/repository/GameTableRepository";
+import * as wsGameCardsEvents from "@/presentation/socket_events/game_cards_events";
+import { ErrorResponse } from "../response/ErrorResponse";
+import GameTable from "@/domain/GameTable";
 
 const gameTableRepository = new GameTableRepository();
 
@@ -64,5 +70,20 @@ export function setSitDownEvent(
 
     const response = await sitDown(gameTableId, seat, playerName);
     io.emit("game_tables", response);
+    if ((response as ErrorResponse).errorMessage) {
+      return;
+    }
+    const gameTable = (response as GameTablesSuccessResponse).gameTables.find(
+      (gameTable: GameTable) => gameTable.id === gameTableId
+    );
+    if (!gameTable) {
+      throw new Error(
+        `更新できたはずのテーブルがないとき [tableId: ${gameTableId}]`
+      );
+    }
+
+    if (gameTable.isAllSitDown()) {
+      await wsGameCardsEvents.handOutCards(gameTableId);
+    }
   });
 }

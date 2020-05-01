@@ -34,8 +34,6 @@ export default class GameTableRepository {
     seat: string,
     playerName: string
   ): Promise<number> {
-    console.log(gameTableId, seat, playerName);
-
     const seatColumn = this.seatToColumnName(seat);
     const query = `
     UPDATE game_tables 
@@ -43,7 +41,6 @@ export default class GameTableRepository {
         WHERE game_tables.id = ${gameTableId}
         ;`;
     const [okPacket] = await connection.execute<OkPacket>(query);
-    console.log("okPacket: ", okPacket);
     return okPacket.insertId;
   }
 
