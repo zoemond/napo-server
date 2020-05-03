@@ -1,6 +1,7 @@
 import connection from "./connection";
 import { OkPacket, RowDataPacket } from "mysql2";
 import GameTable from "@/domain/GameTable";
+import { SeatName } from "@/domain/Seat";
 
 const TABLE = "game_tables";
 
@@ -31,7 +32,7 @@ export default class GameTableRepository {
 
   async sitDown(
     gameTableId: number,
-    seat: string,
+    seat: SeatName,
     playerName: string
   ): Promise<number> {
     const seatColumn = this.seatToColumnName(seat);
@@ -44,7 +45,7 @@ export default class GameTableRepository {
     return okPacket.insertId;
   }
 
-  private seatToColumnName(seat: string): string {
+  private seatToColumnName(seat: SeatName): string {
     switch (seat) {
       case "seatFirst":
         return "seat_first";

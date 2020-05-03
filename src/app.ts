@@ -12,6 +12,7 @@ io.on("connection", (socket: socketIO.Socket) => {
   wsGameTableEvents.setReadGameTablesEvent(socket, io);
   wsGameTableEvents.setSitDownEvent(socket, io);
   wsGameCardsEvents.setReadCardsEvent(socket, io);
+  wsGameCardsEvents.setPlayCardEvent(socket, io);
 });
 
 server.listen(PORT, function () {

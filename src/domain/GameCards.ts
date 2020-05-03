@@ -4,6 +4,7 @@ export default class GameCards {
   constructor(
     gameTableId: number,
     open: [Card, Card],
+    fieldCards: Card[],
     seatFirst: Card[],
     seatSecond: Card[],
     seatThird: Card[],
@@ -11,6 +12,7 @@ export default class GameCards {
     seatFifth: Card[]
   ) {
     this.gameTableId = gameTableId;
+    this.fieldCards = fieldCards;
     this.open = open;
     this.seatFirst = seatFirst;
     this.seatSecond = seatSecond;
@@ -20,9 +22,10 @@ export default class GameCards {
   }
   gameTableId: number;
   open: [Card, Card];
-  seatFirst: Card[];
-  seatSecond: Card[];
-  seatThird: Card[];
-  seatFourth: Card[];
-  seatFifth: Card[];
+  fieldCards: Card[] = [];
+  seatFirst: Card[] = [];
+  seatSecond: Card[] = [];
+  seatThird: Card[] = [];
+  seatFourth: Card[] = [];
+  seatFifth: Card[] = [];
 }

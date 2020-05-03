@@ -2,6 +2,7 @@ import connection from "./connection";
 import { OkPacket, RowDataPacket } from "mysql2";
 import Card from "@/domain/Card";
 import GameCards from "@/domain/GameCards";
+import { SeatName } from "@/domain/Seat";
 
 const CARD_SEPARATOR = "_";
 
@@ -30,10 +31,28 @@ export default class GameCardsRepository {
     );
   }
 
+  async playCard(
+    gameTableId: number,
+    fieldCards: Card[],
+    seat: SeatName,
+    hands: Card[]
+  ): Promise<number> {
+    const query = `
+    UPDATE game_cards
+        SET ${this.seatToColumnName(seat)} = '${this.toStr(hands)}'',
+        SET field_cards = '${this.toStr(fieldCards)}',
+        WHERE game_table_id = ${gameTableId}
+        ;`;
+
+    const [okPacket] = await connection.execute<OkPacket>(query);
+    return okPacket.affectedRows;
+  }
+
   async handOut(gameCards: GameCards): Promise<number> {
     const query = `INSERT INTO game_cards VALUES (
         ${gameCards.gameTableId}, 
         '${this.openToStr(gameCards.open)}', 
+         null,
         '${this.toStr(gameCards.seatFirst)}',
         '${this.toStr(gameCards.seatSecond)}',
         '${this.toStr(gameCards.seatThird)}',
@@ -60,5 +79,22 @@ export default class GameCardsRepository {
 
   private toStr(cards: Card[]): string {
     return cards.map((card) => card.toStr()).join(CARD_SEPARATOR);
+  }
+
+  private seatToColumnName(seat: SeatName): string {
+    switch (seat) {
+      case "seatFirst":
+        return "seat_first";
+      case "seatSecond":
+        return "seat_second";
+      case "seatThird":
+        return "seat_third";
+      case "seatFourth":
+        return "seat_fourth";
+      case "seatFifth":
+        return "seat_fifth";
+      default:
+        throw new Error("席名をカラム名に変換できません:" + seat);
+    }
   }
 }
