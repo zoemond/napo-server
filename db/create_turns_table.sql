@@ -1,0 +1,11 @@
+CREATE TABLE IF NOT EXISTS napo.turns (
+    game_table_id INT NOT NULL,
+    turn_count TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    is_opened BOOLEAN,
+    open_cards VARCHAR(31),
+    state enum('completed', 'cheated', 'playing', 'all_green') DEFAULT 'playing',
+    winner enum('napoleon_forces', 'allied_forces'),
+    cheater enum('first', 'second', 'third', 'fourth', 'fifth'),
+    PRIMARY KEY (game_table_id, turn_count),
+    FOREIGN KEY (game_table_id) REFERENCES game_tables(id)
+);

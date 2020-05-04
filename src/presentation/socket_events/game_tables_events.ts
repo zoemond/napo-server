@@ -7,12 +7,13 @@ import GameTableRepository from "@/repository/GameTableRepository";
 import * as wsGameCardsEvents from "@/presentation/socket_events/game_cards_events";
 import { ErrorResponse } from "../response/ErrorResponse";
 import GameTable from "@/domain/GameTable";
+import { SeatName } from "@/domain/SeatName";
 
 const gameTableRepository = new GameTableRepository();
 
 async function readGameTables(): Promise<GameTablesResponse> {
   try {
-    const list = await gameTableRepository.list();
+    const list = await gameTableRepository.listGameTables();
     return { gameTables: list };
   } catch (error) {
     return { errorMessage: error.message };
@@ -30,7 +31,7 @@ async function createGameTable(): Promise<GameTablesResponse> {
 
 async function sitDown(
   gameTableId: number,
-  seat: string,
+  seat: SeatName,
   userName: string
 ): Promise<GameTablesResponse> {
   try {
@@ -83,7 +84,7 @@ export function setSitDownEvent(
     }
 
     if (gameTable.isAllSitDown()) {
-      await wsGameCardsEvents.handOutCards(gameTableId);
+      await wsGameCardsEvents.handOut(gameTableId);
     }
   });
 }

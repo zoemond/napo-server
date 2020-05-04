@@ -1,5 +1,5 @@
-import GameCards from "./GameCards";
 import Card from "./Card";
+import HandOutCards from "./HandOutCards";
 
 const allCards = [
   "club1",
@@ -77,11 +77,10 @@ function sliceCards(cards: string[], start: number, end?: number): Card[] {
   return cards.slice(start, end).map(Card.fromStr);
 }
 export default class HandOuter {
-  handOut(gameTableId: number): GameCards {
+  handOut(): HandOutCards {
     const cards = shuffle(allCards);
     const [card1, card2] = sliceCards(cards, 0, 2);
-    return new GameCards(
-      gameTableId,
+    return new HandOutCards(
       [card1, card2],
       sliceCards(cards, 2, 12),
       sliceCards(cards, 12, 22),

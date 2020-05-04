@@ -1,26 +1,25 @@
 import connection from "./connection";
 import { OkPacket, RowDataPacket } from "mysql2";
 import GameTable from "@/domain/GameTable";
-import { SeatName } from "@/domain/Seat";
+import { SeatName } from "@/domain/SeatName";
+import { Player } from "@/domain/Player";
 
 const TABLE = "game_tables";
 
 export default class GameTableRepository {
-  async list(): Promise<GameTable[]> {
+  async listGameTables(): Promise<GameTable[]> {
     const query = `SELECT * from ${TABLE};`;
 
     const [rows] = await connection.execute<RowDataPacket[]>(query);
     return rows.map(
       (rows) =>
-        new GameTable(
-          rows.id,
-          rows.turn_count,
-          rows.seat_first,
-          rows.seat_second,
-          rows.seat_third,
-          rows.seat_fourth,
-          rows.seat_fifth
-        )
+        new GameTable(rows.id, rows.turn_count, [
+          new Player(rows.seat_first),
+          new Player(rows.seat_second),
+          new Player(rows.seat_third),
+          new Player(rows.seat_fourth),
+          new Player(rows.seat_fifth),
+        ])
     );
   }
 

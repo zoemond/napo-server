@@ -1,65 +1,93 @@
 import connection from "./connection";
 import { OkPacket, RowDataPacket } from "mysql2";
 import Card from "@/domain/Card";
-import GameCards from "@/domain/GameCards";
-import { SeatName } from "@/domain/Seat";
+import { SeatName } from "@/domain/SeatName";
+import { Seat } from "@/domain/Seat";
+import HandOutCards from "@/domain/HandOutCards";
 
 const CARD_SEPARATOR = "_";
 
 export default class GameCardsRepository {
-  async get(gameTableId: number): Promise<GameCards> {
+  async get(gameTableId: number): Promise<Seat[]> {
     const query = `
     SELECT * 
-        FROM game_cards 
+        FROM seats 
         WHERE game_table_id = ${gameTableId};`;
 
     const [rows] = await connection.execute<RowDataPacket[]>(query);
-    const gameCards = rows[0];
-    if (!gameCards) {
+    const seats = rows;
+    if (!seats) {
       throw new Error(
         `カードを取得できませんでした。[game_table_id: ${gameTableId}]`
       );
     }
-    return new GameCards(
-      gameCards.game_table_id,
-      this.openFromStr(gameCards.open_cards),
-      this.fromStr(gameCards.seat_first),
-      this.fromStr(gameCards.seat_second),
-      this.fromStr(gameCards.seat_third),
-      this.fromStr(gameCards.seat_fourth),
-      this.fromStr(gameCards.seat_fifth)
+    return rows.map(
+      (seat) =>
+        new Seat(
+          seat.seat_name,
+          Card.fromStr(seat.play_card),
+          this.fromStr(seat.face_cards),
+          this.fromStr(seat.hands),
+          seat.score
+        )
     );
   }
 
   async playCard(
     gameTableId: number,
-    fieldCards: Card[],
+    playCard: Card,
     seat: SeatName,
     hands: Card[]
   ): Promise<number> {
     const query = `
-    UPDATE game_cards
-        SET ${this.seatToColumnName(seat)} = '${this.toStr(hands)}'',
-        SET field_cards = '${this.toStr(fieldCards)}',
+    UPDATE seats
+            SET play_card = '${playCard.toStr()}',
+            SET hands = '${this.toStr(hands)}'
         WHERE game_table_id = ${gameTableId}
+        AND seat = ${seat}
         ;`;
 
     const [okPacket] = await connection.execute<OkPacket>(query);
     return okPacket.affectedRows;
   }
 
-  async handOut(gameCards: GameCards): Promise<number> {
-    const query = `INSERT INTO game_cards VALUES (
-        ${gameCards.gameTableId}, 
-        '${this.openToStr(gameCards.open)}', 
-         null,
-        '${this.toStr(gameCards.seatFirst)}',
-        '${this.toStr(gameCards.seatSecond)}',
-        '${this.toStr(gameCards.seatThird)}',
-        '${this.toStr(gameCards.seatFourth)}',
-        '${this.toStr(gameCards.seatFifth)}'
-        );`;
+  async handOut(
+    gameTableId: number,
+    handOutCards: HandOutCards
+  ): Promise<number> {
+    this.handOutSeat(gameTableId, "seatFirst", handOutCards.firstSeat);
+    this.handOutSeat(gameTableId, "seatSecond", handOutCards.secondSeat);
+    this.handOutSeat(gameTableId, "seatThird", handOutCards.thirdSeat);
+    this.handOutSeat(gameTableId, "seatFourth", handOutCards.fourthSeat);
+    this.handOutSeat(gameTableId, "seatFifth", handOutCards.fifthSeat);
 
+    return this.handOutOpen(gameTableId, handOutCards.open);
+  }
+  private async handOutOpen(
+    gameTableId: number,
+    turnCount: number,
+    open: [Card, Card]
+  ): Promise<number> {
+    const query = `
+    INSERT INTO turns
+        SET game_table_id = ${gameTableId},
+        SET turn_count = ${turnCount},
+        SET open_cards = '${this.openToStr(open)}'
+        ;`;
+    const [okPacket] = await connection.execute<OkPacket>(query);
+    return okPacket.affectedRows;
+  }
+  private async handOutSeat(
+    gameTableId: number,
+    seatName: SeatName,
+    hands: Card[]
+  ): Promise<number> {
+    const query = `
+    UPDATE seats
+        SET hands = '${this.toStr(hands)}'
+        WHERE game_table_id = ${gameTableId}
+        AND seat_name = '${seatName}'
+        ;`;
     const [okPacket] = await connection.execute<OkPacket>(query);
     return okPacket.affectedRows;
   }
@@ -79,22 +107,5 @@ export default class GameCardsRepository {
 
   private toStr(cards: Card[]): string {
     return cards.map((card) => card.toStr()).join(CARD_SEPARATOR);
-  }
-
-  private seatToColumnName(seat: SeatName): string {
-    switch (seat) {
-      case "seatFirst":
-        return "seat_first";
-      case "seatSecond":
-        return "seat_second";
-      case "seatThird":
-        return "seat_third";
-      case "seatFourth":
-        return "seat_fourth";
-      case "seatFifth":
-        return "seat_fifth";
-      default:
-        throw new Error("席名をカラム名に変換できません:" + seat);
-    }
   }
 }

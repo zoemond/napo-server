@@ -1,46 +1,54 @@
 import socketIO from "socket.io";
-import { GameCardsResponse } from "../response/GameCardsResponse";
+import { SeatsResponse } from "../response/SeatsResponse";
 import GameCardsRepository from "@/repository/GameCardsRepository";
 import HandOuter from "@/domain/HandOuter";
 import Card from "@/domain/Card";
-import { SeatName } from "@/domain/Seat";
+import { SeatName } from "@/domain/SeatName";
 
 const gameCardsRepository = new GameCardsRepository();
 
-async function readGameCards(gameTableId: number): Promise<GameCardsResponse> {
+async function readSeats(gameTableId: number): Promise<SeatsResponse> {
   try {
-    const gameCards = await gameCardsRepository.get(gameTableId);
-    return { gameCards };
+    const seats = await gameCardsRepository.get(gameTableId);
+    return { seats };
   } catch (error) {
     return { errorMessage: error.message };
   }
 }
 
-export async function handOutCards(
-  gameTableId: number
-): Promise<GameCardsResponse> {
+export async function handOut(gameTableId: number): Promise<SeatsResponse> {
   try {
-    const gameCards = new HandOuter().handOut(gameTableId);
-    await gameCardsRepository.handOut(gameCards);
+    const handOutCards = new HandOuter().handOut();
+    await gameCardsRepository.handOut(gameTableId, handOutCards);
   } catch (error) {
     console.error("error", error);
     return { errorMessage: error.message };
   }
 
-  return readGameCards(gameTableId);
+  return readSeats(gameTableId);
 }
 
 async function playCard(
   gameTableId: number,
-  seat: SeatName,
-  card: Card
+  seatName: SeatName,
+  playCard: Card
 ): Promise<void> {
   try {
-    const gameCards = await gameCardsRepository.get(gameTableId);
-    const hands = gameCards[seat].filter((c) => c.toStr() !== card.toStr());
-    const fieldCards = [...gameCards.fieldCards, card];
+    const seats = await gameCardsRepository.get(gameTableId);
+    const seat = seats.find((s) => s.seatName === seatName);
+    if (!seat) {
+      throw new Error(`席を取得できませんでした[seatName: ${seatName}]`);
+    }
+    const hands = seat.hands.filter(
+      (hand) => hand.toStr() !== playCard.toStr()
+    );
 
-    await gameCardsRepository.playCard(gameTableId, fieldCards, seat, hands);
+    await gameCardsRepository.playCard(
+      gameTableId,
+      playCard,
+      seat.seatName,
+      hands
+    );
   } catch (error) {
     console.error(error);
   }
@@ -53,10 +61,11 @@ export function setReadCardsEvent(
   socket.on("read_cards", async (handOutRequests) => {
     const gameTableId = handOutRequests[0]; //一つ送ってもArrayになるので
 
-    const response = await readGameCards(gameTableId);
+    const response = await readSeats(gameTableId);
     io.emit("game_cards", response);
   });
 }
+
 export function setPlayCardEvent(
   socket: socketIO.Socket,
   io: SocketIO.Server
@@ -65,7 +74,7 @@ export function setPlayCardEvent(
     const { gameTableId, seat, card } = playCardRequests[0]; //一つ送ってもArrayになるので
 
     await playCard(gameTableId, seat, new Card(card.suit, card.number));
-    const response = await readGameCards(gameTableId);
+    const response = await readSeats(gameTableId);
     io.emit("game_cards", response);
   });
 }

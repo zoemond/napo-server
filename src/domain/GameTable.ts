@@ -1,36 +1,16 @@
+import { Player } from "./Player";
+
 export default class GameTable {
-  constructor(
-    id: number,
-    turnCount: number,
-    seatFirst: string,
-    seatSecond: string,
-    seatThird: string,
-    seatFourth: string,
-    seatFifth: string
-  ) {
+  constructor(id: number, turnCount: number, players?: Player[]) {
     this.id = id;
     this.turnCount = turnCount;
-    this.seatFirst = seatFirst;
-    this.seatSecond = seatSecond;
-    this.seatThird = seatThird;
-    this.seatFourth = seatFourth;
-    this.seatFifth = seatFifth;
+    this.players = players || [];
   }
   id: number;
   turnCount: number;
-  seatFirst: string;
-  seatSecond: string;
-  seatThird: string;
-  seatFourth: string;
-  seatFifth: string;
+  players: Player[];
 
   isAllSitDown(): boolean {
-    return !!(
-      this.seatFifth &&
-      this.seatSecond &&
-      this.seatThird &&
-      this.seatFourth &&
-      this.seatFifth
-    );
+    return !this.players.some((player) => !player.isSitDown());
   }
 }
