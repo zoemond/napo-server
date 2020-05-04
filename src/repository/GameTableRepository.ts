@@ -14,11 +14,11 @@ export default class GameTableRepository {
     return rows.map(
       (rows) =>
         new GameTable(rows.id, rows.turn_count, [
-          new Player(rows.seat_first),
-          new Player(rows.seat_second),
-          new Player(rows.seat_third),
-          new Player(rows.seat_fourth),
-          new Player(rows.seat_fifth),
+          new Player("first_seat", rows.first_seat),
+          new Player("second_seat", rows.second_seat),
+          new Player("third_seat", rows.third_seat),
+          new Player("fourth_seat", rows.fourth_seat),
+          new Player("fifth_seat", rows.fifth_seat),
         ])
     );
   }
@@ -34,30 +34,12 @@ export default class GameTableRepository {
     seat: SeatName,
     playerName: string
   ): Promise<number> {
-    const seatColumn = this.seatToColumnName(seat);
     const query = `
     UPDATE game_tables 
-        SET ${seatColumn} = '${playerName}'
+        SET ${seat} = '${playerName}'
         WHERE game_tables.id = ${gameTableId}
         ;`;
     const [okPacket] = await connection.execute<OkPacket>(query);
     return okPacket.insertId;
-  }
-
-  private seatToColumnName(seat: SeatName): string {
-    switch (seat) {
-      case "seatFirst":
-        return "seat_first";
-      case "seatSecond":
-        return "seat_second";
-      case "seatThird":
-        return "seat_third";
-      case "seatFourth":
-        return "seat_fourth";
-      case "seatFifth":
-        return "seat_fifth";
-      default:
-        throw new Error("席名をカラム名に変換できません:" + seat);
-    }
   }
 }

@@ -26,7 +26,7 @@ export default class Card {
     }
     const suit = matchedStrings[0];
     const number = parseInt(matchedNumbers[0]);
-    if (!isSuit(suit) || number === NaN) {
+    if (!isSuit(suit) || isNaN(number)) {
       throw new Error("not card string: " + cardStr);
     }
     return new Card(suit, number);

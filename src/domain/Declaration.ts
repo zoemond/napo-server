@@ -6,9 +6,9 @@ export class Declaration {
   constructor(
     openCards: [Card, Card],
     faceCardNumber: number,
-    trump: Trump = "no_trump",
-    napoleon: SeatName = "seatFifth",
-    aide: SeatName = "seatFifth"
+    trump: Trump,
+    napoleon: SeatName,
+    aide: SeatName
   ) {
     this.openCards = openCards;
     this.faceCardNumber = faceCardNumber;

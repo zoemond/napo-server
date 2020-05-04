@@ -55,11 +55,11 @@ export default class GameCardsRepository {
     gameTableId: number,
     handOutCards: HandOutCards
   ): Promise<number> {
-    this.handOutSeat(gameTableId, "seatFirst", handOutCards.firstSeat);
-    this.handOutSeat(gameTableId, "seatSecond", handOutCards.secondSeat);
-    this.handOutSeat(gameTableId, "seatThird", handOutCards.thirdSeat);
-    this.handOutSeat(gameTableId, "seatFourth", handOutCards.fourthSeat);
-    this.handOutSeat(gameTableId, "seatFifth", handOutCards.fifthSeat);
+    this.handOutSeat(gameTableId, "first_seat", handOutCards.firstSeat);
+    this.handOutSeat(gameTableId, "second_seat", handOutCards.secondSeat);
+    this.handOutSeat(gameTableId, "third_seat", handOutCards.thirdSeat);
+    this.handOutSeat(gameTableId, "fourth_seat", handOutCards.fourthSeat);
+    this.handOutSeat(gameTableId, "fifth_seat", handOutCards.fifthSeat);
 
     return this.handOutOpen(gameTableId, handOutCards.open);
   }
