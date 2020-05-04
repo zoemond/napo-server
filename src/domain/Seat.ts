@@ -2,6 +2,12 @@ import { SeatName } from "./SeatName";
 import Card from "./Card";
 
 export class Seat {
+  seatName: SeatName;
+  playCard?: Card;
+  faceCards: Card[] = [];
+  hands: Card[] = [];
+  score = 0;
+
   constructor(
     seatName: SeatName,
     playCard?: Card,
@@ -15,9 +21,4 @@ export class Seat {
     this.hands = hands;
     this.score = score;
   }
-  seatName: SeatName;
-  playCard?: Card;
-  faceCards: Card[] = [];
-  hands: Card[] = [];
-  score = 0;
 }

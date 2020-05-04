@@ -4,19 +4,42 @@ import Card from "@/domain/Card";
 import { SeatName } from "@/domain/SeatName";
 import { Seat } from "@/domain/Seat";
 import HandOutCards from "@/domain/HandOutCards";
+import { Turn } from "@/domain/Turn";
 
 const CARD_SEPARATOR = "_";
 
 export default class GameCardsRepository {
-  async get(gameTableId: number): Promise<Seat[]> {
+  async getTurn(gameTableId: number): Promise<Turn> {
     const query = `
     SELECT * 
-        FROM seats 
+        FROM turns 
         WHERE game_table_id = ${gameTableId};`;
 
     const [rows] = await connection.execute<RowDataPacket[]>(query);
-    const seats = rows;
-    if (!seats) {
+    if (!rows || !rows[0]) {
+      throw new Error(
+        `ターンを取得できませんでした。[game_table_id: ${gameTableId}]`
+      );
+    }
+    const turn = rows[0];
+    return new Turn(
+      turn.turn_count,
+      this.openFromStr(turn.open_cards),
+      turn.is_opened,
+      turn.winner,
+      turn.cheater
+    );
+  }
+
+  async getSeats(gameTableId: number): Promise<Seat[]> {
+    const query = `
+    SELECT * 
+        FROM seats 
+        WHERE game_table_id = ${gameTableId}
+        ;`;
+
+    const [rows] = await connection.execute<RowDataPacket[]>(query);
+    if (!rows) {
       throw new Error(
         `カードを取得できませんでした。[game_table_id: ${gameTableId}]`
       );
@@ -25,7 +48,7 @@ export default class GameCardsRepository {
       (seat) =>
         new Seat(
           seat.seat_name,
-          Card.fromStr(seat.play_card),
+          seat.play_card && Card.fromStr(seat.play_card),
           this.fromStr(seat.face_cards),
           this.fromStr(seat.hands),
           seat.score
@@ -42,7 +65,7 @@ export default class GameCardsRepository {
     const query = `
     UPDATE seats
             SET play_card = '${playCard.toStr()}',
-            SET hands = '${this.toStr(hands)}'
+                hands = '${this.toStr(hands)}'
         WHERE game_table_id = ${gameTableId}
         AND seat = ${seat}
         ;`;
@@ -51,8 +74,9 @@ export default class GameCardsRepository {
     return okPacket.affectedRows;
   }
 
-  async handOut(
+  async startTurn(
     gameTableId: number,
+    turnCount: number,
     handOutCards: HandOutCards
   ): Promise<number> {
     this.handOutSeat(gameTableId, "first_seat", handOutCards.firstSeat);
@@ -61,7 +85,7 @@ export default class GameCardsRepository {
     this.handOutSeat(gameTableId, "fourth_seat", handOutCards.fourthSeat);
     this.handOutSeat(gameTableId, "fifth_seat", handOutCards.fifthSeat);
 
-    return this.handOutOpen(gameTableId, handOutCards.open);
+    return this.handOutOpen(gameTableId, turnCount, handOutCards.open);
   }
   private async handOutOpen(
     gameTableId: number,
@@ -69,10 +93,10 @@ export default class GameCardsRepository {
     open: [Card, Card]
   ): Promise<number> {
     const query = `
-    INSERT INTO turns
-        SET game_table_id = ${gameTableId},
+    UPDATE turns
         SET turn_count = ${turnCount},
-        SET open_cards = '${this.openToStr(open)}'
+            open_cards = '${this.openToStr(open)}'
+        WHERE game_table_id = ${gameTableId}
         ;`;
     const [okPacket] = await connection.execute<OkPacket>(query);
     return okPacket.affectedRows;
@@ -92,7 +116,10 @@ export default class GameCardsRepository {
     return okPacket.affectedRows;
   }
 
-  private openFromStr(open: string): [Card, Card] {
+  private openFromStr(open: string): [Card, Card] | undefined {
+    if (!open) {
+      return undefined;
+    }
     const [o1, o2] = open.split(CARD_SEPARATOR).map(Card.fromStr);
     return [o1, o2];
   }
@@ -102,10 +129,16 @@ export default class GameCardsRepository {
   }
 
   private fromStr(cards: string): Card[] {
+    if (!cards) {
+      return [];
+    }
     return cards.split(CARD_SEPARATOR).map(Card.fromStr);
   }
 
   private toStr(cards: Card[]): string {
+    if (!cards || cards.length < 1) {
+      return "";
+    }
     return cards.map((card) => card.toStr()).join(CARD_SEPARATOR);
   }
 }

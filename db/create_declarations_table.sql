@@ -6,6 +6,5 @@ CREATE TABLE IF NOT EXISTS napo.declarations (
     napoleon enum('first_seat', 'second_seat', 'third_seat', 'fourth_seat', 'fifth_seat'),
     aide enum('first_seat', 'second_seat', 'third_seat', 'fourth_seat', 'fifth_seat'),
     PRIMARY KEY (game_table_id, turn_count),
-    FOREIGN KEY (game_table_id) REFERENCES game_tables(id),
-    FOREIGN KEY (turn_count) REFERENCES turns(turn_count),
+    FOREIGN KEY (game_table_id) REFERENCES game_tables(id)
 );
