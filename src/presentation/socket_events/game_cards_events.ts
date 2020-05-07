@@ -4,8 +4,12 @@ import GameCardsRepository from "@/repository/GameCardsRepository";
 import HandOuter from "@/domain/HandOuter";
 import Card from "@/domain/Card";
 import { SeatName } from "@/domain/SeatName";
+import { Policy } from "@/domain/Policy";
+import DeclarationRepository from "@/repository/DeclarationRepository";
+import { LapSeat } from "@/domain/LapSeat";
 
 const gameCardsRepository = new GameCardsRepository();
+const declarationRepository = new DeclarationRepository();
 
 async function readSeats(gameTableId: number): Promise<SeatsResponse> {
   try {
@@ -44,21 +48,47 @@ async function playCard(
     if (!seat) {
       throw new Error(`席を取得できませんでした[seatName: ${seatName}]`);
     }
+    const isFirstPlay = seats.every((seat) => !seat.playCard);
     const hands = seat.hands.filter(
       (hand) => hand.toStr() !== playCard.toStr()
     );
 
     await gameCardsRepository.playCard(
       gameTableId,
-      playCard,
       seat.seatName,
-      hands
+      hands,
+      playCard,
+      isFirstPlay
     );
   } catch (error) {
     console.error(error);
   }
 }
 
+async function endLap(gameTableId: number): Promise<void> {
+  try {
+    const seats = await gameCardsRepository.getSeats(gameTableId);
+    const lapSeats = seats
+      .filter((s) => s.playCard)
+      .map((s) => new LapSeat(s.playCard as Card, s.seatName, s.isFirstPlay));
+    if (lapSeats.length < 5) {
+      throw new Error(`全員がカードを出していません[seats: ${seats}]`);
+    }
+
+    const declaration = await declarationRepository.getDeclaration(gameTableId);
+    const winner = new Policy().lapWinner(lapSeats, declaration.trump);
+
+    await gameCardsRepository.endTurn(
+      gameTableId,
+      winner.seatName,
+      seats
+        .map((seat) => seat.playCard as Card)
+        .filter((card) => card.isFaceCard())
+    );
+  } catch (error) {
+    console.error(error);
+  }
+}
 export function setStartTurnEvent(
   socket: socketIO.Socket,
   io: SocketIO.Server
@@ -90,6 +120,18 @@ export function setPlayCardEvent(
     const { gameTableId, seat, card } = playCardRequests[0]; //一つ送ってもArrayになるので
 
     await playCard(gameTableId, seat, new Card(card.suit, card.number));
+    const seatsResponse = await readSeats(gameTableId);
+    io.emit("seats", seatsResponse);
+  });
+}
+export function setEndLapEvent(
+  socket: socketIO.Socket,
+  io: SocketIO.Server
+): void {
+  socket.on("play_card", async (playCardRequests) => {
+    const { gameTableId } = playCardRequests[0]; //一つ送ってもArrayになるので
+
+    await endLap(gameTableId);
     const seatsResponse = await readSeats(gameTableId);
     io.emit("seats", seatsResponse);
   });

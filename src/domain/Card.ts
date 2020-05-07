@@ -14,8 +14,16 @@ export default class Card {
   suit: Suit;
   number: number;
 
+  isFaceCard(): boolean {
+    return this.number >= 10 || this.number === 1;
+  }
+
   toStr(): string {
     return this.suit + this.number;
+  }
+
+  equals(card: Card): boolean {
+    return card.toStr() === this.toStr();
   }
 
   static fromStr(cardStr: string): Card {
