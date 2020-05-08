@@ -7,15 +7,36 @@ import { SeatName } from "@/domain/SeatName";
 import { Policy } from "@/domain/Policy";
 import DeclarationRepository from "@/repository/DeclarationRepository";
 import { LapSeat } from "@/domain/LapSeat";
+import { TurnResponse } from "../response/TurnResponse";
 
 const gameCardsRepository = new GameCardsRepository();
 const declarationRepository = new DeclarationRepository();
+
+async function getTurn(gameTableId: number): Promise<TurnResponse> {
+  try {
+    const turn = await gameCardsRepository.getTurn(gameTableId);
+    return { gameTableId, turn };
+  } catch (error) {
+    return { errorMessage: error.message };
+  }
+}
 
 async function readSeats(gameTableId: number): Promise<SeatsResponse> {
   try {
     const seats = await gameCardsRepository.getSeats(gameTableId);
     return { gameTableId, seats };
   } catch (error) {
+    return { errorMessage: error.message };
+  }
+}
+
+async function open(gameTableId: number): Promise<TurnResponse> {
+  try {
+    await gameCardsRepository.open(gameTableId);
+    const turn = await gameCardsRepository.getTurn(gameTableId);
+    return { gameTableId, turn };
+  } catch (error) {
+    console.error("error", error);
     return { errorMessage: error.message };
   }
 }
@@ -52,6 +73,8 @@ async function playCard(
     const hands = seat.hands.filter(
       (hand) => hand.toStr() !== playCard.toStr()
     );
+    console.log("hands: ", hands);
+    console.log("playCard: ", playCard, playCard.toStr());
 
     await gameCardsRepository.playCard(
       gameTableId,
@@ -89,6 +112,7 @@ async function endLap(gameTableId: number): Promise<void> {
     console.error(error);
   }
 }
+
 export function setStartTurnEvent(
   socket: socketIO.Socket,
   io: SocketIO.Server
@@ -96,7 +120,32 @@ export function setStartTurnEvent(
   socket.on("start_turn", async (startTurnRequests) => {
     const { gameTableId } = startTurnRequests[0]; //一つ送ってもArrayになるので
     const seatsResponse = await startTurn(gameTableId);
+    const turnResponse = await getTurn(gameTableId);
     io.emit("seats", seatsResponse);
+    io.emit("turn", turnResponse);
+  });
+}
+
+export function setOpenEvent(
+  socket: socketIO.Socket,
+  io: SocketIO.Server
+): void {
+  socket.on("open", async (openRequests) => {
+    const { gameTableId } = openRequests[0]; //一つ送ってもArrayになるので
+    const turnResponse = await open(gameTableId);
+    io.emit("turn", turnResponse);
+  });
+}
+
+export function setReadTurnEvent(
+  socket: socketIO.Socket,
+  io: SocketIO.Server
+): void {
+  socket.on("read_turn", async (turnRequests) => {
+    const { gameTableId } = turnRequests[0]; //一つ送ってもArrayになるので
+
+    const turnResponse = await getTurn(gameTableId);
+    io.emit("turn", turnResponse);
   });
 }
 
@@ -124,11 +173,12 @@ export function setPlayCardEvent(
     io.emit("seats", seatsResponse);
   });
 }
+
 export function setEndLapEvent(
   socket: socketIO.Socket,
   io: SocketIO.Server
 ): void {
-  socket.on("play_card", async (playCardRequests) => {
+  socket.on("end_lap", async (playCardRequests) => {
     const { gameTableId } = playCardRequests[0]; //一つ送ってもArrayになるので
 
     await endLap(gameTableId);

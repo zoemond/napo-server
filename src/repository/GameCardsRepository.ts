@@ -5,7 +5,6 @@ import { SeatName } from "@/domain/SeatName";
 import { Seat } from "@/domain/Seat";
 import HandOutCards from "@/domain/HandOutCards";
 import { Turn } from "@/domain/Turn";
-import { Declaration } from "@/domain/Declaration";
 
 const CARD_SEPARATOR = "_";
 
@@ -29,33 +28,6 @@ export default class GameCardsRepository {
       turn.is_opened,
       turn.winner,
       turn.cheater
-    );
-  }
-
-  async getDeclaration(
-    gameTableId: number,
-    turnCount: number
-  ): Promise<Declaration> {
-    const query = `
-    SELECT * 
-        FROM declarations
-        WHERE game_table_id = ${gameTableId}
-        AND turn_count = ${turnCount}
-        ;`;
-
-    const [rows] = await connection.execute<RowDataPacket[]>(query);
-    if (!rows || !rows[0]) {
-      throw new Error(
-        `宣言を取得できませんでした。[game_table_id: ${gameTableId}, turn_count: ${turnCount}]`
-      );
-    }
-    const declaration = rows[0];
-    return new Declaration(
-      this.openFromStr(declaration.open_cards) as [Card, Card],
-      declaration.face_card_number,
-      declaration.trump,
-      declaration.napoleon,
-      declaration.aide
     );
   }
 
@@ -95,10 +67,10 @@ export default class GameCardsRepository {
     const query = `
     UPDATE seats
             SET play_card = '${playCard.toStr()}',
-                is_first_play = '${isFirstPlay}'
+                is_first_play = ${isFirstPlay},
                 hands = '${this.toStr(hands)}'
         WHERE game_table_id = ${gameTableId}
-        AND seat = ${seat}
+        AND seat_name = '${seat}'
         ;`;
 
     const [okPacket] = await connection.execute<OkPacket>(query);
@@ -107,18 +79,28 @@ export default class GameCardsRepository {
 
   async endTurn(
     gameTableId: number,
-    seat: SeatName,
+    seatName: SeatName,
     faceCards: Card[]
   ): Promise<number> {
     const query = `
     UPDATE seats
             SET hands = '${this.toStr(faceCards)}'
         WHERE game_table_id = ${gameTableId}
-        AND seat = ${seat}
+        AND seat_name = '${seatName}'
         ;`;
     const resetQuery = `
     UPDATE seats
             SET play_card = null,
+        WHERE game_table_id = ${gameTableId}
+        ;`;
+    const [okPacket] = await connection.execute<OkPacket>(query);
+    await connection.execute<OkPacket>(resetQuery);
+    return okPacket.affectedRows;
+  }
+  async open(gameTableId: number): Promise<number> {
+    const query = `
+    UPDATE turns
+        SET is_opened = TRUE
         WHERE game_table_id = ${gameTableId}
         ;`;
     const [okPacket] = await connection.execute<OkPacket>(query);
@@ -152,7 +134,7 @@ export default class GameCardsRepository {
     const [okPacket] = await connection.execute<OkPacket>(query);
     return okPacket.affectedRows;
   }
-  private async handOutSeat(
+  async handOutSeat(
     gameTableId: number,
     seatName: SeatName,
     hands: Card[]

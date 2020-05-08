@@ -8,25 +8,25 @@ import { SeatName } from "@/domain/SeatName";
 const CARD_SEPARATOR = "_";
 
 export default class DeclarationRepository {
-  async declare(
+  async declareNapoleon(
     gameTableId: number,
     turnCount: number,
-    openCards: [Card, Card],
     faceCardNumber: number,
     trump: Trump,
     napoleon: SeatName,
-    aide: SeatName
+    aide: SeatName,
+    opens: [Card, Card]
   ): Promise<number> {
     const query = `
     INSERT INTO declarations 
         VALUES (
             ${gameTableId},
             ${turnCount},
-            ${this.openToStr(openCards)},
+            '${this.openToStr(opens)}',
             ${faceCardNumber},
-            ${trump},
-            ${napoleon},
-            ${aide},
+            '${trump}',
+            '${napoleon}',
+            '${aide}'
             )
         ;`;
 
@@ -35,27 +35,26 @@ export default class DeclarationRepository {
   }
 
   async getDeclaration(gameTableId: number): Promise<Declaration> {
-    const turnCount = 0;
     const query = `
     SELECT * 
         FROM declarations
         WHERE game_table_id = ${gameTableId}
-        AND turn_count = ${turnCount}
+        AND turn_count = (SELECT turn_count FROM turns WHERE game_table_id = ${gameTableId})
         ;`;
 
     const [rows] = await connection.execute<RowDataPacket[]>(query);
     if (!rows || !rows[0]) {
       throw new Error(
-        `宣言を取得できませんでした。[game_table_id: ${gameTableId}, turn_count: ${turnCount}]`
+        `宣言を取得できませんでした。[game_table_id: ${gameTableId}]`
       );
     }
     const declaration = rows[0];
     return new Declaration(
-      this.openFromStr(declaration.open_cards),
       declaration.face_card_number,
       declaration.trump,
       declaration.napoleon,
-      declaration.aide
+      declaration.aide,
+      this.openFromStr(declaration.open_cards)
     );
   }
 
