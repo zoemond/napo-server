@@ -1,6 +1,8 @@
 const nodeExternals = require("webpack-node-externals");
 const path = require("path");
 
+const Dotenv = require("dotenv-webpack");
+
 const BUILD_ROOT = path.join(__dirname, "../dist");
 const SRC_ROOT = path.join(__dirname, "../src");
 
@@ -37,4 +39,5 @@ module.exports = {
       "@": path.resolve(__dirname, SRC_ROOT),
     },
   },
+  plugins: [new Dotenv()],
 };
