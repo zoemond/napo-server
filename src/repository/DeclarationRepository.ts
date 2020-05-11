@@ -15,14 +15,14 @@ export default class DeclarationRepository {
     trump: Trump,
     napoleon: SeatName,
     aide: SeatName,
-    opens: [Card, Card]
+    discards: [Card, Card]
   ): Promise<number> {
     const query = `
     INSERT INTO declarations 
         VALUES (
             ${gameTableId},
             ${turnCount},
-            '${this.openToStr(opens)}',
+            '${this.openToStr(discards)}',
             ${faceCardNumber},
             '${trump}',
             '${napoleon}',
@@ -54,7 +54,7 @@ export default class DeclarationRepository {
       declaration.trump,
       declaration.napoleon,
       declaration.aide,
-      this.openFromStr(declaration.open_cards)
+      this.openFromStr(declaration.discards)
     );
   }
 

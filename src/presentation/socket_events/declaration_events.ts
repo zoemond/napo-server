@@ -27,9 +27,10 @@ async function declareTrump(
   faceCardNumber: number,
   aideCard: Card,
   napoleon: SeatName,
-  openCards: [Card, Card]
+  discards: [Card, Card]
 ): Promise<DeclarationResponse> {
   try {
+    const [discard1, discard2] = discards;
     const seats = await seatsRepository.getSeats(gameTableId);
     const aide =
       seats.find((seat) => seat.hands.find((card) => card.equals(aideCard)))
@@ -39,11 +40,9 @@ async function declareTrump(
     const hands = seats
       .find((seat) => seat.seatName === napoleon)
       ?.hands.concat(turn.openCards as [Card, Card])
-      .filter(
-        (card) => !card.equals(openCards[0]) && !card.equals(openCards[1])
-      );
+      .filter((card) => !card.equals(discard1) && !card.equals(discard2));
     console.log("hands", hands);
-    console.log("opens", openCards);
+    console.log("opens", discards);
     if (!hands) {
       throw new Error(
         `ナポレオンを特定できませんでした. [napoleon: ${napoleon}]`
@@ -57,7 +56,7 @@ async function declareTrump(
       trump,
       napoleon,
       aide,
-      openCards
+      discards
     );
     await seatsRepository.handOutSeat(gameTableId, napoleon, hands);
     const declaration = new Declaration(
@@ -65,7 +64,7 @@ async function declareTrump(
       trump,
       napoleon,
       aide,
-      openCards
+      discards
     );
     return { gameTableId, declaration };
   } catch (error) {
@@ -88,26 +87,24 @@ export function setDeclareTrumpEvent(
   socket: socketIO.Socket,
   io: SocketIO.Server
 ): void {
-  socket.on("declare_trump", async (playCardRequests) => {
+  socket.on("declare_trump", async (declareRequests) => {
     const {
       gameTableId,
       trump,
       faceCardNumber,
       aideCard,
       napoleon,
-      openCards,
-    } = playCardRequests[0]; //一つ送ってもArrayになるので
+      discards,
+    } = declareRequests[0]; //一つ送ってもArrayになるので
+    const [discard1, discard2] = discards;
 
     const declarationResponse = await declareTrump(
       gameTableId,
       trump,
       faceCardNumber,
-      new Card(aideCard.suit, aideCard.number),
+      Card.fromObj(aideCard),
       napoleon,
-      [
-        new Card(openCards[0].suit, openCards[0].number),
-        new Card(openCards[1].suit, openCards[1].number),
-      ]
+      [Card.fromObj(discard1), Card.fromObj(discard2)]
     );
     io.emit("declaration", declarationResponse);
   });

@@ -39,4 +39,8 @@ export default class Card {
     }
     return new Card(suit, number);
   }
+
+  static fromObj(cardObj: Card): Card {
+    return new Card(cardObj.suit, cardObj.number);
+  }
 }

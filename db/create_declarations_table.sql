@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS napo.declarations (
     game_table_id INT NOT NULL,
     turn_count TINYINT UNSIGNED NOT NULL DEFAULT 0,
-    open_cards VARCHAR(31),
+    discards VARCHAR(31),
     face_card_number TINYINT UNSIGNED DEFAULT 0,
     trump enum('no_trump', 'spade', 'club', 'heart', 'diamond'),
     napoleon enum('first_seat', 'second_seat', 'third_seat', 'fourth_seat', 'fifth_seat'),

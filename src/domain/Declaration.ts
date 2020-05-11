@@ -8,15 +8,15 @@ export class Declaration {
     trump: Trump,
     napoleon: SeatName,
     aide: SeatName,
-    openCards?: [Card, Card]
+    discards?: [Card, Card]
   ) {
-    this.openCards = openCards;
+    this.discards = discards;
     this.faceCardNumber = faceCardNumber;
     this.trump = trump;
     this.napoleon = napoleon;
     this.aide = aide;
   }
-  openCards?: [Card, Card];
+  discards?: [Card, Card];
   faceCardNumber: number;
   trump: Trump;
   napoleon: SeatName;
