@@ -1,5 +1,5 @@
-import { ErrorResponse } from "@/presentation/response/ErrorResponse";
-import { Declaration } from "@/domain/Declaration";
+import { ErrorResponse } from "~/presentation/response/ErrorResponse";
+import { Declaration } from "~/domain/Declaration";
 
 type DeclarationSuccessResponse = {
   gameTableId: number;

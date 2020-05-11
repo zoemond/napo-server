@@ -1,7 +1,7 @@
 import socketIO from "socket.io";
 import { GameTablesResponse } from "../response/GameTablesResponse";
-import GameTableRepository from "@/repository/GameTableRepository";
-import { SeatName } from "@/domain/SeatName";
+import GameTableRepository from "~/repository/GameTableRepository";
+import { SeatName } from "~/domain/SeatName";
 
 const gameTableRepository = new GameTableRepository();
 

@@ -1,12 +1,12 @@
 import socketIO from "socket.io";
 import { SeatsResponse } from "../response/SeatsResponse";
-import GameCardsRepository from "@/repository/GameCardsRepository";
-import HandOuter from "@/domain/HandOuter";
-import Card from "@/domain/Card";
-import { SeatName } from "@/domain/SeatName";
-import { Policy } from "@/domain/Policy";
-import DeclarationRepository from "@/repository/DeclarationRepository";
-import { LapSeat } from "@/domain/LapSeat";
+import GameCardsRepository from "~/repository/GameCardsRepository";
+import HandOuter from "~/domain/HandOuter";
+import Card from "~/domain/Card";
+import { SeatName } from "~/domain/SeatName";
+import { Policy } from "~/domain/Policy";
+import DeclarationRepository from "~/repository/DeclarationRepository";
+import { LapSeat } from "~/domain/LapSeat";
 import { TurnResponse } from "../response/TurnResponse";
 
 const gameCardsRepository = new GameCardsRepository();

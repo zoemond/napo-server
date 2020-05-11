@@ -1,9 +1,9 @@
 import connection from "./connection";
 import { OkPacket, RowDataPacket } from "mysql2";
-import Card from "@/domain/Card";
-import { Declaration } from "@/domain/Declaration";
-import { Trump } from "@/domain/Trump";
-import { SeatName } from "@/domain/SeatName";
+import Card from "~/domain/Card";
+import { Declaration } from "~/domain/Declaration";
+import { Trump } from "~/domain/Trump";
+import { SeatName } from "~/domain/SeatName";
 
 const CARD_SEPARATOR = "_";
 

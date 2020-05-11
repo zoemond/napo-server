@@ -1,8 +1,8 @@
 import connection from "./connection";
 import { OkPacket, RowDataPacket } from "mysql2";
-import GameTable from "@/domain/GameTable";
-import { SeatName, orderedSeatNames } from "@/domain/SeatName";
-import { Player } from "@/domain/Player";
+import GameTable from "~/domain/GameTable";
+import { SeatName, orderedSeatNames } from "~/domain/SeatName";
+import { Player } from "~/domain/Player";
 
 export default class GameTableRepository {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

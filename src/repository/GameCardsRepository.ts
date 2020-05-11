@@ -1,10 +1,10 @@
 import connection from "./connection";
 import { OkPacket, RowDataPacket } from "mysql2";
-import Card from "@/domain/Card";
-import { SeatName } from "@/domain/SeatName";
-import { Seat } from "@/domain/Seat";
-import HandOutCards from "@/domain/HandOutCards";
-import { Turn } from "@/domain/Turn";
+import Card from "~/domain/Card";
+import { SeatName } from "~/domain/SeatName";
+import { Seat } from "~/domain/Seat";
+import HandOutCards from "~/domain/HandOutCards";
+import { Turn } from "~/domain/Turn";
 
 const CARD_SEPARATOR = "_";
 

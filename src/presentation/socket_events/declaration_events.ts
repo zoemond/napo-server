@@ -1,11 +1,11 @@
 import socketIO from "socket.io";
-import GameCardsRepository from "@/repository/GameCardsRepository";
-import Card from "@/domain/Card";
-import { SeatName } from "@/domain/SeatName";
-import DeclarationRepository from "@/repository/DeclarationRepository";
+import GameCardsRepository from "~/repository/GameCardsRepository";
+import Card from "~/domain/Card";
+import { SeatName } from "~/domain/SeatName";
+import DeclarationRepository from "~/repository/DeclarationRepository";
 import { DeclarationResponse } from "../response/DeclarationResponse";
-import { Trump } from "@/domain/Trump";
-import { Declaration } from "@/domain/Declaration";
+import { Trump } from "~/domain/Trump";
+import { Declaration } from "~/domain/Declaration";
 
 const declarationRepository = new DeclarationRepository();
 const seatsRepository = new GameCardsRepository();
