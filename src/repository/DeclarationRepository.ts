@@ -14,7 +14,7 @@ export default class DeclarationRepository {
     faceCardNumber: number,
     trump: Trump,
     napoleon: SeatName,
-    aide: SeatName,
+    aideCard: Card,
     discards: [Card, Card]
   ): Promise<number> {
     const query = `
@@ -26,7 +26,7 @@ export default class DeclarationRepository {
             ${faceCardNumber},
             '${trump}',
             '${napoleon}',
-            '${aide}'
+            '${aideCard.toStr()}'
             )
         ;`;
 
@@ -53,7 +53,7 @@ export default class DeclarationRepository {
       declaration.face_card_number,
       declaration.trump,
       declaration.napoleon,
-      declaration.aide,
+      Card.fromStr(declaration.aide_card),
       this.openFromStr(declaration.discards)
     );
   }

@@ -6,6 +6,7 @@ import DeclarationRepository from "~/repository/DeclarationRepository";
 import { DeclarationResponse } from "../response/DeclarationResponse";
 import { Trump } from "~/domain/Trump";
 import { Declaration } from "~/domain/Declaration";
+import { readSeats } from "./game_cards_events";
 
 const declarationRepository = new DeclarationRepository();
 const seatsRepository = new GameCardsRepository();
@@ -32,10 +33,6 @@ async function declareTrump(
   try {
     const [discard1, discard2] = discards;
     const seats = await seatsRepository.getSeats(gameTableId);
-    const aide =
-      seats.find((seat) => seat.hands.find((card) => card.equals(aideCard)))
-        ?.seatName || napoleon;
-
     const turn = await seatsRepository.getTurn(gameTableId);
     const hands = seats
       .find((seat) => seat.seatName === napoleon)
@@ -55,7 +52,7 @@ async function declareTrump(
       faceCardNumber,
       trump,
       napoleon,
-      aide,
+      aideCard,
       discards
     );
     await seatsRepository.handOutSeat(gameTableId, napoleon, hands);
@@ -63,7 +60,7 @@ async function declareTrump(
       faceCardNumber,
       trump,
       napoleon,
-      aide,
+      aideCard,
       discards
     );
     return { gameTableId, declaration };
@@ -107,5 +104,9 @@ export function setDeclareTrumpEvent(
       [Card.fromObj(discard1), Card.fromObj(discard2)]
     );
     io.emit("declaration", declarationResponse);
+
+    // TODO: 責任が分離しないようにうまくやる
+    const seatsResponse = await readSeats(gameTableId);
+    io.emit("seats", seatsResponse);
   });
 }

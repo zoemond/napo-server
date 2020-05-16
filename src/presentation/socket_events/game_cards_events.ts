@@ -21,7 +21,7 @@ async function getTurn(gameTableId: number): Promise<TurnResponse> {
   }
 }
 
-async function readSeats(gameTableId: number): Promise<SeatsResponse> {
+export async function readSeats(gameTableId: number): Promise<SeatsResponse> {
   try {
     const seats = await gameCardsRepository.getSeats(gameTableId);
     return { gameTableId, seats };
