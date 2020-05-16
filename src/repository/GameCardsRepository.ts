@@ -49,7 +49,7 @@ export default class GameCardsRepository {
         new Seat(
           seat.seat_name,
           seat.play_card && Card.fromStr(seat.play_card),
-          seat.is_first_play,
+          seat.is_last_lap_winner,
           this.fromStr(seat.face_cards),
           this.fromStr(seat.hands),
           seat.score
@@ -61,13 +61,11 @@ export default class GameCardsRepository {
     gameTableId: number,
     seat: SeatName,
     hands: Card[],
-    playCard: Card,
-    isFirstPlay: boolean
+    playCard: Card
   ): Promise<number> {
     const query = `
     UPDATE seats
             SET play_card = '${playCard.toStr()}',
-                is_first_play = ${isFirstPlay},
                 hands = '${this.toStr(hands)}'
         WHERE game_table_id = ${gameTableId}
         AND seat_name = '${seat}'
@@ -77,7 +75,7 @@ export default class GameCardsRepository {
     return okPacket.affectedRows;
   }
 
-  async endTurn(
+  async endLap(
     gameTableId: number,
     seatName: SeatName,
     faceCards: Card[]
@@ -85,18 +83,23 @@ export default class GameCardsRepository {
     const query = `
     UPDATE seats
             SET hands = '${this.toStr(faceCards)}'
+            SET play_card = null,
+            SET is_first_play = TRUE
         WHERE game_table_id = ${gameTableId}
         AND seat_name = '${seatName}'
         ;`;
-    const resetQuery = `
+    const resetCoPlayer = `
     UPDATE seats
             SET play_card = null,
+            SET is_first_play = FALSE
         WHERE game_table_id = ${gameTableId}
+        AND seat_name != '${seatName}'
         ;`;
     const [okPacket] = await connection.execute<OkPacket>(query);
-    await connection.execute<OkPacket>(resetQuery);
+    await connection.execute<OkPacket>(resetCoPlayer);
     return okPacket.affectedRows;
   }
+
   async open(gameTableId: number): Promise<number> {
     const query = `
     UPDATE turns

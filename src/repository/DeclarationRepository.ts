@@ -29,7 +29,13 @@ export default class DeclarationRepository {
             '${aideCard.toStr()}'
             )
         ;`;
-
+    const setFirstPlay = `
+    UPDATE seats
+            SET is_last_lap_winner = TRUE
+        WHERE game_table_id = ${gameTableId}
+        AND seat_name = '${napoleon}'
+        ;`;
+    await connection.execute<OkPacket>(setFirstPlay);
     const [okPacket] = await connection.execute<OkPacket>(query);
     return okPacket.insertId;
   }

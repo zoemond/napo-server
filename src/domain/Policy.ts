@@ -95,7 +95,7 @@ export class Policy {
   }
 
   private higherNoTrump(seatCards: LapSeat[]): LapSeat | undefined {
-    const firstSeat = seatCards.find((seat) => seat.isFirstPlay);
+    const firstSeat = seatCards.find((seat) => seat.isLastLapWinner);
     return seatCards
       .filter((seat) => seat.playCard.suit === firstSeat?.playCard.suit)
       .sort((s1, s2) => s2.playCard.number - s1.playCard.number)[0];

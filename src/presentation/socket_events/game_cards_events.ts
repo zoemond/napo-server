@@ -58,42 +58,14 @@ export async function startTurn(gameTableId: number): Promise<SeatsResponse> {
   return readSeats(gameTableId);
 }
 
-async function playCard(
-  gameTableId: number,
-  seatName: SeatName,
-  playCard: Card
-): Promise<void> {
-  try {
-    const seats = await gameCardsRepository.getSeats(gameTableId);
-    const seat = seats.find((s) => s.seatName === seatName);
-    if (!seat) {
-      throw new Error(`席を取得できませんでした[seatName: ${seatName}]`);
-    }
-    const isFirstPlay = seats.every((seat) => !seat.playCard);
-    const hands = seat.hands.filter(
-      (hand) => hand.toStr() !== playCard.toStr()
-    );
-    console.log("hands: ", hands);
-    console.log("playCard: ", playCard, playCard.toStr());
-
-    await gameCardsRepository.playCard(
-      gameTableId,
-      seat.seatName,
-      hands,
-      playCard,
-      isFirstPlay
-    );
-  } catch (error) {
-    console.error(error);
-  }
-}
-
 async function endLap(gameTableId: number): Promise<void> {
   try {
     const seats = await gameCardsRepository.getSeats(gameTableId);
     const lapSeats = seats
       .filter((s) => s.playCard)
-      .map((s) => new LapSeat(s.playCard as Card, s.seatName, s.isFirstPlay));
+      .map(
+        (s) => new LapSeat(s.playCard as Card, s.seatName, s.isLastLapWinner)
+      );
     if (lapSeats.length < 5) {
       throw new Error(`全員がカードを出していません[seats: ${seats}]`);
     }
@@ -101,7 +73,7 @@ async function endLap(gameTableId: number): Promise<void> {
     const declaration = await declarationRepository.getDeclaration(gameTableId);
     const winner = new Policy().lapWinner(lapSeats, declaration.trump);
 
-    await gameCardsRepository.endTurn(
+    await gameCardsRepository.endLap(
       gameTableId,
       winner.seatName,
       seats
@@ -113,6 +85,35 @@ async function endLap(gameTableId: number): Promise<void> {
   }
 }
 
+async function playCard(
+  gameTableId: number,
+  seatName: SeatName,
+  playCard: Card
+): Promise<void> {
+  try {
+    const seats = await gameCardsRepository.getSeats(gameTableId);
+    const seat = seats.find((s) => s.seatName === seatName);
+    if (!seat) {
+      throw new Error(`席を取得できませんでした[seatName: ${seatName}]`);
+    }
+    const hands = seat.hands.filter((hand) => !hand.equals(playCard));
+    console.log("hands: ", hands);
+    console.log("playCard: ", playCard, playCard.toStr());
+
+    await gameCardsRepository.playCard(
+      gameTableId,
+      seat.seatName,
+      hands,
+      playCard
+    );
+    const isLapEnd = seats.every((seat) => seat.playCard);
+    if (isLapEnd) {
+      endLap(gameTableId);
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
 export function setStartTurnEvent(
   socket: socketIO.Socket,
   io: SocketIO.Server
@@ -166,9 +167,9 @@ export function setPlayCardEvent(
   io: SocketIO.Server
 ): void {
   socket.on("play_card", async (playCardRequests) => {
-    const { gameTableId, seat, card } = playCardRequests[0]; //一つ送ってもArrayになるので
+    const { gameTableId, seatName, card } = playCardRequests[0]; //一つ送ってもArrayになるので
 
-    await playCard(gameTableId, seat, new Card(card.suit, card.number));
+    await playCard(gameTableId, seatName, Card.fromObj(card));
     const seatsResponse = await readSeats(gameTableId);
     io.emit("seats", seatsResponse);
   });
