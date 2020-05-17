@@ -58,7 +58,7 @@ export async function startTurn(gameTableId: number): Promise<SeatsResponse> {
   return readSeats(gameTableId);
 }
 
-async function endLap(gameTableId: number): Promise<void> {
+async function judgeWinnerIfLapEnds(gameTableId: number): Promise<void> {
   try {
     const seats = await gameCardsRepository.getSeats(gameTableId);
     const lapSeats = seats
@@ -66,20 +66,23 @@ async function endLap(gameTableId: number): Promise<void> {
       .map(
         (s) => new LapSeat(s.playCard as Card, s.seatName, s.isLastLapWinner)
       );
-    if (lapSeats.length < 5) {
-      throw new Error(`全員がカードを出していません[seats: ${seats}]`);
+
+    const isLapEnd = lapSeats.length === 5;
+    if (!isLapEnd) {
+      return;
     }
 
     const declaration = await declarationRepository.getDeclaration(gameTableId);
     const winner = new Policy().lapWinner(lapSeats, declaration.trump);
 
-    await gameCardsRepository.endLap(
+    await gameCardsRepository.setFaceCards(
       gameTableId,
       winner.seatName,
       seats
         .map((seat) => seat.playCard as Card)
         .filter((card) => card.isFaceCard())
     );
+    await gameCardsRepository.resetPlayCards(gameTableId);
   } catch (error) {
     console.error(error);
   }
@@ -97,8 +100,6 @@ async function playCard(
       throw new Error(`席を取得できませんでした[seatName: ${seatName}]`);
     }
     const hands = seat.hands.filter((hand) => !hand.equals(playCard));
-    console.log("hands: ", hands);
-    console.log("playCard: ", playCard, playCard.toStr());
 
     await gameCardsRepository.playCard(
       gameTableId,
@@ -106,10 +107,8 @@ async function playCard(
       hands,
       playCard
     );
-    const isLapEnd = seats.every((seat) => seat.playCard);
-    if (isLapEnd) {
-      endLap(gameTableId);
-    }
+
+    await judgeWinnerIfLapEnds(gameTableId);
   } catch (error) {
     console.error(error);
   }
@@ -170,19 +169,6 @@ export function setPlayCardEvent(
     const { gameTableId, seatName, card } = playCardRequests[0]; //一つ送ってもArrayになるので
 
     await playCard(gameTableId, seatName, Card.fromObj(card));
-    const seatsResponse = await readSeats(gameTableId);
-    io.emit("seats", seatsResponse);
-  });
-}
-
-export function setEndLapEvent(
-  socket: socketIO.Socket,
-  io: SocketIO.Server
-): void {
-  socket.on("end_lap", async (playCardRequests) => {
-    const { gameTableId } = playCardRequests[0]; //一つ送ってもArrayになるので
-
-    await endLap(gameTableId);
     const seatsResponse = await readSeats(gameTableId);
     io.emit("seats", seatsResponse);
   });

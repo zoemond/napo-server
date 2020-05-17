@@ -75,28 +75,52 @@ export default class GameCardsRepository {
     return okPacket.affectedRows;
   }
 
-  async endLap(
+  async setFaceCards(
     gameTableId: number,
     seatName: SeatName,
     faceCards: Card[]
   ): Promise<number> {
-    const query = `
-    UPDATE seats
-            SET hands = '${this.toStr(faceCards)}'
-            SET play_card = null,
-            SET is_first_play = TRUE
+    const selectFaceCards = `
+    SELECT face_cards
+        FROM seats
         WHERE game_table_id = ${gameTableId}
         AND seat_name = '${seatName}'
         ;`;
-    const resetCoPlayer = `
+    const [rows] = await connection.execute<RowDataPacket[]>(selectFaceCards);
+    const oldFaceCards = rows[0].face_cards;
+    console.log("rows", rows);
+
+    const newFaceCards = `${
+      oldFaceCards ? oldFaceCards + CARD_SEPARATOR : ""
+    }${this.toStr(faceCards)}`;
+
+    const query = `
     UPDATE seats
-            SET play_card = null,
-            SET is_first_play = FALSE
+            SET face_cards = '${newFaceCards}',
+                is_last_lap_winner = TRUE
+        WHERE game_table_id = ${gameTableId}
+        AND seat_name = '${seatName}'
+        ;`;
+    const [okPacket] = await connection.execute<OkPacket>(query);
+
+    const resetLastLap = `
+    UPDATE seats
+            SET is_last_lap_winner = FALSE
         WHERE game_table_id = ${gameTableId}
         AND seat_name != '${seatName}'
         ;`;
+
+    await connection.execute<OkPacket>(resetLastLap);
+    return okPacket.affectedRows;
+  }
+
+  async resetPlayCards(gameTableId: number): Promise<number> {
+    const query = `
+    UPDATE seats
+            SET play_card = null
+        WHERE game_table_id = ${gameTableId}
+        ;`;
     const [okPacket] = await connection.execute<OkPacket>(query);
-    await connection.execute<OkPacket>(resetCoPlayer);
     return okPacket.affectedRows;
   }
 
