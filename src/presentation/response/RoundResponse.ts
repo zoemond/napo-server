@@ -1,7 +1,7 @@
 import { ErrorResponse } from "~/presentation/response/ErrorResponse";
 import { Round } from "~/domain/Round";
 
-type RoundSuccessResponse = {
+export type RoundSuccessResponse = {
   gameTableId: number;
   round: Round;
 };

@@ -11,7 +11,7 @@ import { readSeats } from "./game_cards_events";
 const declarationRepository = new DeclarationRepository();
 const seatsRepository = new GameCardsRepository();
 
-async function getDeclaration(
+export async function getDeclaration(
   gameTableId: number,
   roundCount: number
 ): Promise<DeclarationResponse> {
@@ -71,17 +71,6 @@ async function declareTrump(
   } catch (error) {
     return { errorMessage: error.message };
   }
-}
-
-export function setDeclarationEvent(
-  socket: socketIO.Socket,
-  io: SocketIO.Server
-): void {
-  socket.on("read_declaration", async (declarationRequests) => {
-    const { gameTableId, roundCount } = declarationRequests[0]; //一つ送ってもArrayになるので
-    const declarationResponse = await getDeclaration(gameTableId, roundCount);
-    io.emit("declaration", declarationResponse);
-  });
 }
 
 export function setDeclareTrumpEvent(

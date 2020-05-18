@@ -7,7 +7,9 @@ import { SeatName } from "~/domain/SeatName";
 import { Policy } from "~/domain/Policy";
 import DeclarationRepository from "~/repository/DeclarationRepository";
 import { LapSeat } from "~/domain/LapSeat";
-import { RoundResponse } from "../response/RoundResponse";
+import { RoundResponse, RoundSuccessResponse } from "../response/RoundResponse";
+import { getDeclaration } from "~/presentation/socket_events/declaration_events";
+import { ErrorResponse } from "../response/ErrorResponse";
 
 const gameCardsRepository = new GameCardsRepository();
 const declarationRepository = new DeclarationRepository();
@@ -76,18 +78,18 @@ async function handOut(gameTableId: number, roundCount: number): Promise<void> {
   );
 }
 
-export async function newRound(gameTableId: number): Promise<SeatsResponse> {
+export async function newRound(gameTableId: number): Promise<RoundResponse> {
   try {
     await gameCardsRepository.resetSeatsCards(gameTableId);
     await gameCardsRepository.newRound(gameTableId);
     const roundForHandOut = await gameCardsRepository.getRound(gameTableId);
     await handOut(gameTableId, roundForHandOut.roundCount);
+    const round = await gameCardsRepository.getRound(gameTableId);
+    return { gameTableId, round };
   } catch (error) {
     console.error("error", error);
     return { errorMessage: error.message };
   }
-
-  return readSeats(gameTableId);
 }
 
 async function judgeWinnerIfLapEnds(gameTableId: number): Promise<void> {
@@ -155,10 +157,11 @@ export function setStartRoundEvent(
 ): void {
   socket.on("start_round", async (startRoundRequests) => {
     const { gameTableId } = startRoundRequests[0]; //一つ送ってもArrayになるので
-    const seatsResponse = await newRound(gameTableId);
-    const roundResponse = await getRound(gameTableId);
-    io.emit("seats", seatsResponse);
+    const roundResponse = await newRound(gameTableId);
+    const seatResponse = await readSeats(gameTableId);
     io.emit("round", roundResponse);
+    io.emit("seats", seatResponse);
+    io.emit("declaration", { gameTableId });
   });
 }
 
@@ -182,6 +185,15 @@ export function setReadRoundEvent(
 
     const roundResponse = await getRound(gameTableId);
     io.emit("round", roundResponse);
+    if ((roundResponse as ErrorResponse).errorMessage) {
+      return;
+    }
+    // いくつかのクライアントはroundCountがいつ変化するかを知らないので教える
+    const declarationResponse = await getDeclaration(
+      gameTableId,
+      (roundResponse as RoundSuccessResponse).round.roundCount
+    );
+    io.emit("declaration", declarationResponse);
   });
 }
 
