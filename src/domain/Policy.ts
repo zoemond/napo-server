@@ -113,6 +113,9 @@ export class Policy {
     if (card2.number === 1) {
       return 1;
     }
+    if (card1.number === 1) {
+      return -1;
+    }
     return card2.number - card1.number;
   }
 }
