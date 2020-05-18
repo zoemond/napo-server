@@ -6,7 +6,6 @@ import Card from "~/domain/Card";
 import { SeatName } from "~/domain/SeatName";
 import { Policy } from "~/domain/Policy";
 import DeclarationRepository from "~/repository/DeclarationRepository";
-import { LapSeat } from "~/domain/LapSeat";
 import { RoundResponse, RoundSuccessResponse } from "../response/RoundResponse";
 import { getDeclaration } from "~/presentation/socket_events/declaration_events";
 import { ErrorResponse } from "../response/ErrorResponse";
@@ -95,11 +94,7 @@ export async function newRound(gameTableId: number): Promise<RoundResponse> {
 async function judgeWinnerIfLapEnds(gameTableId: number): Promise<void> {
   try {
     const seats = await gameCardsRepository.getSeats(gameTableId);
-    const lapSeats = seats
-      .filter((s) => s.playCard)
-      .map(
-        (s) => new LapSeat(s.playCard as Card, s.seatName, s.isLastLapWinner)
-      );
+    const lapSeats = seats.filter((s) => s.playCard).map((s) => s.toLapSeat());
 
     const isLapEnd = lapSeats.length === 5;
     if (!isLapEnd) {

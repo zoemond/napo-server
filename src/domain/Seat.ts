@@ -1,5 +1,6 @@
 import { SeatName } from "./SeatName";
 import Card from "./Card";
+import { LapSeat } from "./LapSeat";
 
 export class Seat {
   seatName: SeatName;
@@ -23,5 +24,16 @@ export class Seat {
     this.faceCards = faceCards;
     this.hands = hands;
     this.score = score;
+  }
+  toLapSeat(): LapSeat {
+    if (!this.playCard) {
+      throw new Error("手札が出されていないのに点数計算をしようとしています");
+    }
+    return new LapSeat(
+      this.playCard as Card,
+      this.seatName,
+      this.hands.length,
+      this.isLastLapWinner
+    );
   }
 }
