@@ -91,13 +91,24 @@ export class Policy {
   private higherSuit(trump: Trump, seatCards: LapSeat[]): LapSeat | undefined {
     return seatCards
       .filter((seat) => seat.playCard.suit === trump)
-      .sort((s1, s2) => s1.playCard.number - s2.playCard.number)[0];
+      .sort((s1, s2) => {
+        return this.strongerNumber(s1.playCard, s2.playCard);
+      })[0];
   }
 
   private higherNoTrump(seatCards: LapSeat[]): LapSeat | undefined {
     const firstSeat = seatCards.find((seat) => seat.isLastLapWinner);
     return seatCards
       .filter((seat) => seat.playCard.suit === firstSeat?.playCard.suit)
-      .sort((s1, s2) => s2.playCard.number - s1.playCard.number)[0];
+      .sort((s1, s2) => {
+        return this.strongerNumber(s1.playCard, s2.playCard);
+      })[0];
+  }
+
+  private strongerNumber(card1: Card, card2: Card): number {
+    if (card2.number === 1) {
+      return 1;
+    }
+    return card2.number - card1.number;
   }
 }
