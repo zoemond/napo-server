@@ -75,7 +75,7 @@ export class Policy {
   }
 
   private same2(seatCards: LapSeat[]): LapSeat | undefined {
-    const isFirstLap = seatCards.every((seat) => seat.handsCount === 10);
+    const isFirstLap = seatCards.every((seat) => seat.handsCount === 9);
     if (isFirstLap) {
       return undefined;
     }
