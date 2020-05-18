@@ -113,13 +113,16 @@ async function judgeWinnerIfLapEnds(gameTableId: number): Promise<void> {
     );
     const winner = new Policy().lapWinner(lapSeats, declaration.trump);
 
-    await gameCardsRepository.setFaceCards(
-      gameTableId,
-      winner.seatName,
-      seats
-        .map((seat) => seat.playCard as Card)
-        .filter((card) => card.isFaceCard())
-    );
+    const faceCards = seats
+      .map((seat) => seat.playCard as Card)
+      .filter((card) => card.isFaceCard());
+    if (faceCards.length > 0) {
+      await gameCardsRepository.setFaceCards(
+        gameTableId,
+        winner.seatName,
+        faceCards
+      );
+    }
     await gameCardsRepository.resetPlayCards(gameTableId);
   } catch (error) {
     console.error(error);
