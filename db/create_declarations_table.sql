@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS napo.declarations (
     face_card_number TINYINT UNSIGNED DEFAULT 0,
     trump enum('no_trump', 'spade', 'club', 'heart', 'diamond'),
     napoleon enum('first_seat', 'second_seat', 'third_seat', 'fourth_seat', 'fifth_seat'),
-    aide_card VARCHAR(7),
+    aide_card VARCHAR(9),
     PRIMARY KEY (game_table_id, round_count),
     FOREIGN KEY (game_table_id) REFERENCES game_tables(id)
 );
