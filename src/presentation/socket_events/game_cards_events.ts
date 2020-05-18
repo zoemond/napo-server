@@ -72,7 +72,11 @@ async function judgeWinnerIfLapEnds(gameTableId: number): Promise<void> {
       return;
     }
 
-    const declaration = await declarationRepository.getDeclaration(gameTableId);
+    const round = await gameCardsRepository.getRound(gameTableId);
+    const declaration = await declarationRepository.getDeclaration(
+      gameTableId,
+      round.roundCount
+    );
     const winner = new Policy().lapWinner(lapSeats, declaration.trump);
 
     await gameCardsRepository.setFaceCards(

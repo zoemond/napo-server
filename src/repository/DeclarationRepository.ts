@@ -40,12 +40,15 @@ export default class DeclarationRepository {
     return okPacket.insertId;
   }
 
-  async getDeclaration(gameTableId: number): Promise<Declaration> {
+  async getDeclaration(
+    gameTableId: number,
+    roundCount: number
+  ): Promise<Declaration> {
     const query = `
     SELECT * 
         FROM declarations
         WHERE game_table_id = ${gameTableId}
-        AND round_count = (SELECT round_count FROM rounds WHERE game_table_id = ${gameTableId})
+        AND round_count = ${roundCount}
         ;`;
 
     const [rows] = await connection.execute<RowDataPacket[]>(query);

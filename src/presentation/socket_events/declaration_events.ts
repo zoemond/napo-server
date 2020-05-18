@@ -12,10 +12,14 @@ const declarationRepository = new DeclarationRepository();
 const seatsRepository = new GameCardsRepository();
 
 async function getDeclaration(
-  gameTableId: number
+  gameTableId: number,
+  roundCount: number
 ): Promise<DeclarationResponse> {
   try {
-    const declaration = await declarationRepository.getDeclaration(gameTableId);
+    const declaration = await declarationRepository.getDeclaration(
+      gameTableId,
+      roundCount
+    );
     return { gameTableId, declaration };
   } catch (error) {
     return { errorMessage: error.message };
@@ -74,8 +78,8 @@ export function setDeclarationEvent(
   io: SocketIO.Server
 ): void {
   socket.on("read_declaration", async (declarationRequests) => {
-    const { gameTableId } = declarationRequests[0]; //一つ送ってもArrayになるので
-    const declarationResponse = await getDeclaration(gameTableId);
+    const { gameTableId, roundCount } = declarationRequests[0]; //一つ送ってもArrayになるので
+    const declarationResponse = await getDeclaration(gameTableId, roundCount);
     io.emit("declaration", declarationResponse);
   });
 }
