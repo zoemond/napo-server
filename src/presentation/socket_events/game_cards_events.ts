@@ -41,15 +41,47 @@ async function open(gameTableId: number): Promise<RoundResponse> {
   }
 }
 
-export async function startRound(gameTableId: number): Promise<SeatsResponse> {
+async function handOut(gameTableId: number, roundCount: number): Promise<void> {
+  const handOutCards = new HandOuter().handOut();
+  await gameCardsRepository.handOutSeat(
+    gameTableId,
+    "first_seat",
+    handOutCards.firstSeat
+  );
+  await gameCardsRepository.handOutSeat(
+    gameTableId,
+    "second_seat",
+    handOutCards.secondSeat
+  );
+  await gameCardsRepository.handOutSeat(
+    gameTableId,
+    "third_seat",
+    handOutCards.thirdSeat
+  );
+  await gameCardsRepository.handOutSeat(
+    gameTableId,
+    "fourth_seat",
+    handOutCards.fourthSeat
+  );
+  await gameCardsRepository.handOutSeat(
+    gameTableId,
+    "fifth_seat",
+    handOutCards.fifthSeat
+  );
+
+  await gameCardsRepository.handOutOpen(
+    gameTableId,
+    roundCount,
+    handOutCards.open
+  );
+}
+
+export async function newRound(gameTableId: number): Promise<SeatsResponse> {
   try {
-    const round = await gameCardsRepository.getRound(gameTableId);
-    const handOutCards = new HandOuter().handOut();
-    await gameCardsRepository.startRound(
-      gameTableId,
-      round.roundCount,
-      handOutCards
-    );
+    await gameCardsRepository.resetSeatsCards(gameTableId);
+    await gameCardsRepository.newRound(gameTableId);
+    const roundForHandOut = await gameCardsRepository.getRound(gameTableId);
+    await handOut(gameTableId, roundForHandOut.roundCount);
   } catch (error) {
     console.error("error", error);
     return { errorMessage: error.message };
@@ -123,7 +155,7 @@ export function setStartRoundEvent(
 ): void {
   socket.on("start_round", async (startRoundRequests) => {
     const { gameTableId } = startRoundRequests[0]; //一つ送ってもArrayになるので
-    const seatsResponse = await startRound(gameTableId);
+    const seatsResponse = await newRound(gameTableId);
     const roundResponse = await getRound(gameTableId);
     io.emit("seats", seatsResponse);
     io.emit("round", roundResponse);

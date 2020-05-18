@@ -3,17 +3,31 @@ import { OkPacket, RowDataPacket } from "mysql2";
 import Card from "~/domain/Card";
 import { SeatName } from "~/domain/SeatName";
 import { Seat } from "~/domain/Seat";
-import HandOutCards from "~/domain/HandOutCards";
 import { Round } from "~/domain/Round";
 
 const CARD_SEPARATOR = "_";
 
 export default class GameCardsRepository {
+  async newRound(gameTableId: number): Promise<number> {
+    const query = `
+    INSERT INTO rounds (game_table_id, round_count) 
+            SELECT game_table_id, round_count + 1
+                FROM rounds
+                WHERE game_table_id = ${gameTableId}
+                ORDER BY round_count DESC
+                LIMIT 1
+            ;`;
+    const [okPacket] = await connection.execute<OkPacket>(query);
+    return okPacket.insertId;
+  }
   async getRound(gameTableId: number): Promise<Round> {
     const query = `
     SELECT * 
         FROM rounds 
-        WHERE game_table_id = ${gameTableId};`;
+        WHERE game_table_id = ${gameTableId}
+        ORDER BY round_count DESC
+        LIMIT 1
+        ;`;
 
     const [rows] = await connection.execute<RowDataPacket[]>(query);
     if (!rows || !rows[0]) {
@@ -114,16 +128,6 @@ export default class GameCardsRepository {
     return okPacket.affectedRows;
   }
 
-  async resetPlayCards(gameTableId: number): Promise<number> {
-    const query = `
-    UPDATE seats
-            SET play_card = null
-        WHERE game_table_id = ${gameTableId}
-        ;`;
-    const [okPacket] = await connection.execute<OkPacket>(query);
-    return okPacket.affectedRows;
-  }
-
   async open(gameTableId: number): Promise<number> {
     const query = `
     UPDATE rounds
@@ -134,29 +138,16 @@ export default class GameCardsRepository {
     return okPacket.affectedRows;
   }
 
-  async startRound(
-    gameTableId: number,
-    roundCount: number,
-    handOutCards: HandOutCards
-  ): Promise<number> {
-    this.handOutSeat(gameTableId, "first_seat", handOutCards.firstSeat);
-    this.handOutSeat(gameTableId, "second_seat", handOutCards.secondSeat);
-    this.handOutSeat(gameTableId, "third_seat", handOutCards.thirdSeat);
-    this.handOutSeat(gameTableId, "fourth_seat", handOutCards.fourthSeat);
-    this.handOutSeat(gameTableId, "fifth_seat", handOutCards.fifthSeat);
-
-    return this.handOutOpen(gameTableId, roundCount, handOutCards.open);
-  }
-  private async handOutOpen(
+  async handOutOpen(
     gameTableId: number,
     roundCount: number,
     open: [Card, Card]
   ): Promise<number> {
     const query = `
     UPDATE rounds
-        SET round_count = ${roundCount},
-            open_cards = '${this.openToStr(open)}'
+        SET open_cards = '${this.openToStr(open)}'
         WHERE game_table_id = ${gameTableId}
+        AND round_count = ${roundCount}
         ;`;
     const [okPacket] = await connection.execute<OkPacket>(query);
     return okPacket.affectedRows;
@@ -171,6 +162,29 @@ export default class GameCardsRepository {
         SET hands = '${this.toStr(hands)}'
         WHERE game_table_id = ${gameTableId}
         AND seat_name = '${seatName}'
+        ;`;
+    const [okPacket] = await connection.execute<OkPacket>(query);
+    return okPacket.affectedRows;
+  }
+
+  async resetPlayCards(gameTableId: number): Promise<number> {
+    const query = `
+    UPDATE seats
+            SET play_card = null
+        WHERE game_table_id = ${gameTableId}
+        ;`;
+    const [okPacket] = await connection.execute<OkPacket>(query);
+    return okPacket.affectedRows;
+  }
+
+  async resetSeatsCards(gameTableId: number): Promise<number> {
+    const query = `
+    UPDATE seats
+            SET play_card = null,
+                face_cards = null,
+                is_last_lap_winner = FALSE,
+                hands = null
+        WHERE game_table_id = ${gameTableId}
         ;`;
     const [okPacket] = await connection.execute<OkPacket>(query);
     return okPacket.affectedRows;
