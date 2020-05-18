@@ -4,15 +4,15 @@ import Card from "~/domain/Card";
 import { SeatName } from "~/domain/SeatName";
 import { Seat } from "~/domain/Seat";
 import HandOutCards from "~/domain/HandOutCards";
-import { Turn } from "~/domain/Turn";
+import { Round } from "~/domain/Round";
 
 const CARD_SEPARATOR = "_";
 
 export default class GameCardsRepository {
-  async getTurn(gameTableId: number): Promise<Turn> {
+  async getRound(gameTableId: number): Promise<Round> {
     const query = `
     SELECT * 
-        FROM turns 
+        FROM rounds 
         WHERE game_table_id = ${gameTableId};`;
 
     const [rows] = await connection.execute<RowDataPacket[]>(query);
@@ -21,13 +21,13 @@ export default class GameCardsRepository {
         `ターンを取得できませんでした。[game_table_id: ${gameTableId}]`
       );
     }
-    const turn = rows[0];
-    return new Turn(
-      turn.turn_count,
-      this.openFromStr(turn.open_cards),
-      turn.is_opened,
-      turn.winner,
-      turn.cheater
+    const round = rows[0];
+    return new Round(
+      round.round_count,
+      this.openFromStr(round.open_cards),
+      round.is_opened,
+      round.winner,
+      round.cheater
     );
   }
 
@@ -126,7 +126,7 @@ export default class GameCardsRepository {
 
   async open(gameTableId: number): Promise<number> {
     const query = `
-    UPDATE turns
+    UPDATE rounds
         SET is_opened = TRUE
         WHERE game_table_id = ${gameTableId}
         ;`;
@@ -134,9 +134,9 @@ export default class GameCardsRepository {
     return okPacket.affectedRows;
   }
 
-  async startTurn(
+  async startRound(
     gameTableId: number,
-    turnCount: number,
+    roundCount: number,
     handOutCards: HandOutCards
   ): Promise<number> {
     this.handOutSeat(gameTableId, "first_seat", handOutCards.firstSeat);
@@ -145,16 +145,16 @@ export default class GameCardsRepository {
     this.handOutSeat(gameTableId, "fourth_seat", handOutCards.fourthSeat);
     this.handOutSeat(gameTableId, "fifth_seat", handOutCards.fifthSeat);
 
-    return this.handOutOpen(gameTableId, turnCount, handOutCards.open);
+    return this.handOutOpen(gameTableId, roundCount, handOutCards.open);
   }
   private async handOutOpen(
     gameTableId: number,
-    turnCount: number,
+    roundCount: number,
     open: [Card, Card]
   ): Promise<number> {
     const query = `
-    UPDATE turns
-        SET turn_count = ${turnCount},
+    UPDATE rounds
+        SET round_count = ${roundCount},
             open_cards = '${this.openToStr(open)}'
         WHERE game_table_id = ${gameTableId}
         ;`;

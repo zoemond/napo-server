@@ -7,15 +7,15 @@ import { SeatName } from "~/domain/SeatName";
 import { Policy } from "~/domain/Policy";
 import DeclarationRepository from "~/repository/DeclarationRepository";
 import { LapSeat } from "~/domain/LapSeat";
-import { TurnResponse } from "../response/TurnResponse";
+import { RoundResponse } from "../response/RoundResponse";
 
 const gameCardsRepository = new GameCardsRepository();
 const declarationRepository = new DeclarationRepository();
 
-async function getTurn(gameTableId: number): Promise<TurnResponse> {
+async function getRound(gameTableId: number): Promise<RoundResponse> {
   try {
-    const turn = await gameCardsRepository.getTurn(gameTableId);
-    return { gameTableId, turn };
+    const round = await gameCardsRepository.getRound(gameTableId);
+    return { gameTableId, round };
   } catch (error) {
     return { errorMessage: error.message };
   }
@@ -30,24 +30,24 @@ export async function readSeats(gameTableId: number): Promise<SeatsResponse> {
   }
 }
 
-async function open(gameTableId: number): Promise<TurnResponse> {
+async function open(gameTableId: number): Promise<RoundResponse> {
   try {
     await gameCardsRepository.open(gameTableId);
-    const turn = await gameCardsRepository.getTurn(gameTableId);
-    return { gameTableId, turn };
+    const round = await gameCardsRepository.getRound(gameTableId);
+    return { gameTableId, round };
   } catch (error) {
     console.error("error", error);
     return { errorMessage: error.message };
   }
 }
 
-export async function startTurn(gameTableId: number): Promise<SeatsResponse> {
+export async function startRound(gameTableId: number): Promise<SeatsResponse> {
   try {
-    const turn = await gameCardsRepository.getTurn(gameTableId);
+    const round = await gameCardsRepository.getRound(gameTableId);
     const handOutCards = new HandOuter().handOut();
-    await gameCardsRepository.startTurn(
+    await gameCardsRepository.startRound(
       gameTableId,
-      turn.turnCount,
+      round.roundCount,
       handOutCards
     );
   } catch (error) {
@@ -113,16 +113,16 @@ async function playCard(
     console.error(error);
   }
 }
-export function setStartTurnEvent(
+export function setStartRoundEvent(
   socket: socketIO.Socket,
   io: SocketIO.Server
 ): void {
-  socket.on("start_turn", async (startTurnRequests) => {
-    const { gameTableId } = startTurnRequests[0]; //一つ送ってもArrayになるので
-    const seatsResponse = await startTurn(gameTableId);
-    const turnResponse = await getTurn(gameTableId);
+  socket.on("start_round", async (startRoundRequests) => {
+    const { gameTableId } = startRoundRequests[0]; //一つ送ってもArrayになるので
+    const seatsResponse = await startRound(gameTableId);
+    const roundResponse = await getRound(gameTableId);
     io.emit("seats", seatsResponse);
-    io.emit("turn", turnResponse);
+    io.emit("round", roundResponse);
   });
 }
 
@@ -132,20 +132,20 @@ export function setOpenEvent(
 ): void {
   socket.on("open", async (openRequests) => {
     const { gameTableId } = openRequests[0]; //一つ送ってもArrayになるので
-    const turnResponse = await open(gameTableId);
-    io.emit("turn", turnResponse);
+    const roundResponse = await open(gameTableId);
+    io.emit("round", roundResponse);
   });
 }
 
-export function setReadTurnEvent(
+export function setReadRoundEvent(
   socket: socketIO.Socket,
   io: SocketIO.Server
 ): void {
-  socket.on("read_turn", async (turnRequests) => {
-    const { gameTableId } = turnRequests[0]; //一つ送ってもArrayになるので
+  socket.on("read_round", async (roundRequests) => {
+    const { gameTableId } = roundRequests[0]; //一つ送ってもArrayになるので
 
-    const turnResponse = await getTurn(gameTableId);
-    io.emit("turn", turnResponse);
+    const roundResponse = await getRound(gameTableId);
+    io.emit("round", roundResponse);
   });
 }
 

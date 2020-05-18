@@ -1,4 +1,4 @@
 DROP TABLE declarations;
-DROP TABLE turns;
+DROP TABLE rounds;
 DROP TABLE seats;
 DROP TABLE game_tables;

@@ -10,7 +10,7 @@ const CARD_SEPARATOR = "_";
 export default class DeclarationRepository {
   async declareNapoleon(
     gameTableId: number,
-    turnCount: number,
+    roundCount: number,
     faceCardNumber: number,
     trump: Trump,
     napoleon: SeatName,
@@ -21,7 +21,7 @@ export default class DeclarationRepository {
     INSERT INTO declarations 
         VALUES (
             ${gameTableId},
-            ${turnCount},
+            ${roundCount},
             '${this.openToStr(discards)}',
             ${faceCardNumber},
             '${trump}',
@@ -45,7 +45,7 @@ export default class DeclarationRepository {
     SELECT * 
         FROM declarations
         WHERE game_table_id = ${gameTableId}
-        AND turn_count = (SELECT turn_count FROM turns WHERE game_table_id = ${gameTableId})
+        AND round_count = (SELECT round_count FROM rounds WHERE game_table_id = ${gameTableId})
         ;`;
 
     const [rows] = await connection.execute<RowDataPacket[]>(query);

@@ -33,10 +33,10 @@ async function declareTrump(
   try {
     const [discard1, discard2] = discards;
     const seats = await seatsRepository.getSeats(gameTableId);
-    const turn = await seatsRepository.getTurn(gameTableId);
+    const round = await seatsRepository.getRound(gameTableId);
     const hands = seats
       .find((seat) => seat.seatName === napoleon)
-      ?.hands.concat(turn.openCards as [Card, Card])
+      ?.hands.concat(round.openCards as [Card, Card])
       .filter((card) => !card.equals(discard1) && !card.equals(discard2));
     console.log("hands", hands);
     console.log("opens", discards);
@@ -48,7 +48,7 @@ async function declareTrump(
 
     await declarationRepository.declareNapoleon(
       gameTableId,
-      turn.turnCount,
+      round.roundCount,
       faceCardNumber,
       trump,
       napoleon,

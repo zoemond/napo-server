@@ -7,7 +7,7 @@ import { Player } from "~/domain/Player";
 export default class GameTableRepository {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private rowToGameTable(gameTableRow: any): GameTable {
-    return new GameTable(gameTableRow.id, gameTableRow.turn_count, [
+    return new GameTable(gameTableRow.id, gameTableRow.round_count, [
       new Player("first_seat", gameTableRow.first_seat),
       new Player("second_seat", gameTableRow.second_seat),
       new Player("third_seat", gameTableRow.third_seat),
@@ -37,7 +37,7 @@ export default class GameTableRepository {
   async createGameTable(): Promise<number> {
     const gameTableId = await this.initGameTable();
     await this.initSeats(gameTableId);
-    return await this.initTurn(gameTableId);
+    return await this.initRound(gameTableId);
   }
   private async initGameTable(): Promise<number> {
     const query = `INSERT INTO game_tables (id) VALUES (0)`;
@@ -56,8 +56,8 @@ export default class GameTableRepository {
     const [okPacket] = await connection.execute<OkPacket>(query);
     return okPacket.insertId;
   }
-  private async initTurn(gameTableId: number): Promise<number> {
-    const query = `INSERT INTO turns (game_table_id, turn_count) VALUES (${gameTableId}, 0)`;
+  private async initRound(gameTableId: number): Promise<number> {
+    const query = `INSERT INTO rounds (game_table_id,round_count) VALUES (${gameTableId}, 0)`;
     const [okPacket] = await connection.execute<OkPacket>(query);
     return okPacket.insertId;
   }

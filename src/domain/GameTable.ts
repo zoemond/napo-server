@@ -1,13 +1,13 @@
 import { Player } from "./Player";
 
 export default class GameTable {
-  constructor(id: number, turnCount: number, players?: Player[]) {
+  constructor(id: number, roundCount: number, players?: Player[]) {
     this.id = id;
-    this.turnCount = turnCount;
+    this.roundCount = roundCount;
     this.players = players || [];
   }
   id: number;
-  turnCount: number;
+  roundCount: number;
   players: Player[];
 
   isAllSitDown(): boolean {
