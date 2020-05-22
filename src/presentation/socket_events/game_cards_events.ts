@@ -136,19 +136,17 @@ async function playCard(
       throw new Error(`席を取得できませんでした[seatName: ${seatName}]`);
     }
     const hands = seat.hands.filter((hand) => !hand.equals(playCard));
-
     await gameCardsRepository.playCard(
       gameTableId,
       seat.seatName,
       hands,
       playCard
     );
-
-    await judgeWinnerIfLapEnds(gameTableId);
   } catch (error) {
     console.error(error);
   }
 }
+
 export function setStartRoundEvent(
   socket: socketIO.Socket,
   io: SocketIO.Server
@@ -216,6 +214,14 @@ export function setPlayCardEvent(
 
     await playCard(gameTableId, seatName, Card.fromObj(card));
     const seatsResponse = await readSeats(gameTableId);
+    /**
+     * TODO: 状態の更新がどこでどのタイミングで行われるか不明瞭
+     * どんなときに クライアント・サーバ, ブロードキャスト・普通のレスポンスどちらが行うか、
+     * せめてルールを決める必要がある
+     */
+    // 5人のカードが出揃う状態にする
     io.emit("seats", seatsResponse);
+    // 勝敗を決定して絵札を回収する
+    judgeWinnerIfLapEnds(gameTableId);
   });
 }
