@@ -9,6 +9,7 @@ import DeclarationRepository from "~/repository/DeclarationRepository";
 import { RoundResponse, RoundSuccessResponse } from "../response/RoundResponse";
 import { getDeclaration } from "~/presentation/socket_events/declaration_events";
 import { ErrorResponse } from "../response/ErrorResponse";
+import MyGameSight from "~/domain/MyGameSight";
 
 const gameCardsRepository = new GameCardsRepository();
 const declarationRepository = new DeclarationRepository();
@@ -134,6 +135,12 @@ async function playCard(
     const seat = seats.find((s) => s.seatName === seatName);
     if (!seat) {
       throw new Error(`席を取得できませんでした[seatName: ${seatName}]`);
+    }
+    const myGameSight = new MyGameSight(seat.seatName, seats);
+    if (!myGameSight.isMyTurn()) {
+      throw new Error(
+        `[seatName: ${seatName}]の手番ではありません。手札を切ったあとすぐにカードをクリックした可能性があります`
+      );
     }
     const hands = seat.hands.filter((hand) => !hand.equals(playCard));
     await gameCardsRepository.playCard(
