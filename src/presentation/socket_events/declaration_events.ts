@@ -86,15 +86,18 @@ export function setDeclareTrumpEvent(
       napoleon,
       discards,
     } = declareRequests[0]; //一つ送ってもArrayになるので
-    const [discard1, discard2] = discards;
+    const [discard1, discard2] = discards.map(Card.fromObj);
 
+    if (discard1.equals(discard2)) {
+      throw new Error("同じカードは捨てられません.");
+    }
     const declarationResponse = await declareTrump(
       gameTableId,
       trump,
       faceCardNumber,
       Card.fromObj(aideCard),
       napoleon,
-      [Card.fromObj(discard1), Card.fromObj(discard2)]
+      [discard1, discard2]
     );
     io.emit("declaration", declarationResponse);
 
