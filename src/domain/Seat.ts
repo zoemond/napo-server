@@ -5,6 +5,7 @@ import { LapSeat } from "./LapSeat";
 export class Seat {
   seatName: SeatName;
   playCard?: Card;
+  isAide: boolean;
   isLastLapWinner: boolean;
   faceCards: Card[] = [];
   hands: Card[] = [];
@@ -13,6 +14,7 @@ export class Seat {
   constructor(
     seatName: SeatName,
     playCard?: Card,
+    isAide = false,
     isLastLapWinner = false,
     faceCards: Card[] = [],
     hands: Card[] = [],
@@ -20,11 +22,13 @@ export class Seat {
   ) {
     this.seatName = seatName;
     this.playCard = playCard;
+    this.isAide = isAide;
     this.isLastLapWinner = isLastLapWinner;
     this.faceCards = faceCards;
     this.hands = hands;
     this.score = score;
   }
+
   toLapSeat(): LapSeat {
     if (!this.playCard) {
       throw new Error("手札が出されていないのに点数計算をしようとしています");

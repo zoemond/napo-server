@@ -63,6 +63,7 @@ export default class GameCardsRepository {
         new Seat(
           seat.seat_name,
           seat.play_card && Card.fromStr(seat.play_card),
+          seat.is_aide,
           seat.is_last_lap_winner,
           this.fromStr(seat.face_cards),
           this.fromStr(seat.hands),
@@ -74,12 +75,14 @@ export default class GameCardsRepository {
   async playCard(
     gameTableId: number,
     seat: SeatName,
+    isAide: boolean,
     hands: Card[],
     playCard: Card
   ): Promise<number> {
     const query = `
     UPDATE seats
             SET play_card = '${playCard.toStr()}',
+                is_aide = ${isAide},
                 hands = '${this.toStr(hands)}'
         WHERE game_table_id = ${gameTableId}
         AND seat_name = '${seat}'
@@ -188,6 +191,26 @@ export default class GameCardsRepository {
         ;`;
     const [okPacket] = await connection.execute<OkPacket>(query);
     return okPacket.affectedRows;
+  }
+  async saveScores(
+    gameTableId: number,
+    scores: Map<SeatName, number>
+  ): Promise<void> {
+    // TODO トランザクション
+    Array.from(scores.entries())
+      .map((nameScore) => {
+        const [name, score] = nameScore;
+        return `
+    UPDATE seats
+            SET score = ${score}
+        WHERE game_table_id = ${gameTableId}
+        AND seat_name = '${name}'
+        ;`;
+      })
+      .forEach(async (query) => {
+        const [okPacket] = await connection.execute<OkPacket>(query);
+        return okPacket.affectedRows;
+      });
   }
 
   private openFromStr(open: string): [Card, Card] | undefined {

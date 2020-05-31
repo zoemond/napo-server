@@ -10,6 +10,7 @@ import { RoundResponse, RoundSuccessResponse } from "../response/RoundResponse";
 import { getDeclaration } from "~/presentation/socket_events/declaration_events";
 import { ErrorResponse } from "../response/ErrorResponse";
 import MyGameSight from "~/domain/MyGameSight";
+import { calcScores } from "~/domain/ScoreCalculator";
 
 const gameCardsRepository = new GameCardsRepository();
 const declarationRepository = new DeclarationRepository();
@@ -78,7 +79,7 @@ async function handOut(gameTableId: number, roundCount: number): Promise<void> {
   );
 }
 
-export async function newRound(gameTableId: number): Promise<RoundResponse> {
+async function newRound(gameTableId: number): Promise<RoundResponse> {
   try {
     await gameCardsRepository.resetSeatsCards(gameTableId);
     await gameCardsRepository.newRound(gameTableId);
@@ -124,6 +125,18 @@ async function judgeWinnerIfLapEnds(gameTableId: number): Promise<void> {
     console.error(error);
   }
 }
+async function calculateScore(
+  gameTableId: number,
+  roundCount: number
+): Promise<void> {
+  const seats = await gameCardsRepository.getSeats(gameTableId);
+  const declaration = await declarationRepository.getDeclaration(
+    gameTableId,
+    roundCount
+  );
+  const scores = calcScores(seats, declaration);
+  gameCardsRepository.saveScores(gameTableId, scores);
+}
 
 async function playCard(
   gameTableId: number,
@@ -143,9 +156,18 @@ async function playCard(
       );
     }
     const hands = seat.hands.filter((hand) => !hand.equals(playCard));
+
+    const round = await gameCardsRepository.getRound(gameTableId);
+    const declaration = await declarationRepository.getDeclaration(
+      gameTableId,
+      round.roundCount
+    );
+    const isAide = playCard.equals(declaration.aideCard);
+
     await gameCardsRepository.playCard(
       gameTableId,
       seat.seatName,
+      isAide,
       hands,
       playCard
     );
@@ -230,5 +252,24 @@ export function setPlayCardEvent(
     io.emit("seats", seatsResponse);
     // 勝敗を決定して絵札を回収する
     judgeWinnerIfLapEnds(gameTableId);
+  });
+}
+
+export function setCalcScoreAndNewRoundEvent(
+  socket: socketIO.Socket,
+  io: SocketIO.Server
+): void {
+  socket.on("calc_score_and_new_round", async (playCardRequests) => {
+    const { gameTableId } = playCardRequests[0]; //一つ送ってもArrayになるので
+    const round = await gameCardsRepository.getRound(gameTableId);
+    const roundCount = round.roundCount;
+    if (roundCount !== 0) {
+      await calculateScore(gameTableId, roundCount);
+    }
+    const roundResponse = await newRound(gameTableId);
+    const seatResponse = await readSeats(gameTableId);
+    io.emit("round", roundResponse);
+    io.emit("seats", seatResponse);
+    io.emit("declaration", { gameTableId });
   });
 }
