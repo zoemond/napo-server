@@ -23,16 +23,13 @@ export class Policy {
     const mighty = new Card("spade", 1);
     const yoromeki = new Card("heart", 12);
     const mightySeat = seatCards.find((seat) => seat.playCard.equals(mighty));
-    if (mightySeat) {
-      const mightyKiller = seatCards.find((seat) =>
-        seat.playCard.equals(yoromeki)
-      );
-      if (mightyKiller) {
-        return mightyKiller;
-      } else {
-        return mightySeat;
-      }
+    if (!mightySeat) {
+      return undefined;
     }
+    const mightyKiller = seatCards.find((seat) =>
+      seat.playCard.equals(yoromeki)
+    );
+    return mightyKiller || mightySeat;
   }
 
   private jack(trump: Trump, seatCards: LapSeat[]): LapSeat | undefined {
@@ -40,8 +37,8 @@ export class Policy {
       return undefined;
     }
     const jack = seatCards.find((seat) => {
-      const playCard = seat.playCard;
-      return playCard.suit === trump && playCard.number === 11;
+      const { suit, number } = seat.playCard;
+      return suit === trump && number === 11;
     });
     return jack;
   }
@@ -55,8 +52,8 @@ export class Policy {
     }
     const oppositeSuit = this.oppositeSuit(trump);
     const jack = seatCards.find((seat) => {
-      const playCard = seat.playCard;
-      return playCard.suit === oppositeSuit && playCard.number === 11;
+      const { suit, number } = seat.playCard;
+      return suit === oppositeSuit && number === 11;
     });
     return jack;
   }
