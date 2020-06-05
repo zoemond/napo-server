@@ -4,6 +4,7 @@ import express from "express";
 import * as wsGameTableEvents from "~/presentation/socket_events/game_tables_events";
 import * as wsGameCardsEvents from "~/presentation/socket_events/game_cards_events";
 import * as wsDeclarationEvents from "~/presentation/socket_events/declaration_events";
+import * as wsRoundEndsEvents from "~/presentation/socket_events/round_ends_events";
 
 const PORT = process.env.PORT || 7000;
 const app = express();
@@ -24,6 +25,7 @@ io.on("connection", (socket: socketIO.Socket) => {
   wsGameCardsEvents.setPlayCardEvent(socket, io);
   wsGameCardsEvents.setCalcScoreAndNewRoundEvent(socket, io);
   wsDeclarationEvents.setDeclareTrumpEvent(socket, io);
+  wsRoundEndsEvents.setCompleteRoundEvent(socket, io);
 });
 
 server.listen(PORT, function () {

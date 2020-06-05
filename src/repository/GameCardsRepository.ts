@@ -20,6 +20,21 @@ export default class GameCardsRepository {
     const [okPacket] = await connection.execute<OkPacket>(query);
     return okPacket.insertId;
   }
+
+  async completeRound(
+    gameTableId: number,
+    roundCount: number
+  ): Promise<number> {
+    const query = `
+    UPDATE rounds 
+            SET state = 'completed'
+            WHERE game_table_id = ${gameTableId}
+            AND round_count = ${roundCount}
+            ;`;
+    const [okPacket] = await connection.execute<OkPacket>(query);
+    return okPacket.insertId;
+  }
+
   async getRound(gameTableId: number): Promise<Round> {
     const query = `
     SELECT * 
@@ -40,6 +55,7 @@ export default class GameCardsRepository {
       round.round_count,
       this.openFromStr(round.open_cards),
       round.is_opened,
+      round.state,
       round.winner,
       round.cheater
     );
@@ -131,7 +147,7 @@ export default class GameCardsRepository {
 
     const query = `
     UPDATE seats
-            SET face_cards = '${newFaceCards}',
+            SET face_cards = '${newFaceCards}'
         WHERE game_table_id = ${gameTableId}
         AND seat_name = '${seatName}'
         ;`;
