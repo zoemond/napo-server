@@ -91,6 +91,25 @@ export default class GameCardsRepository {
     const [okPacket] = await connection.execute<OkPacket>(query);
     return okPacket.affectedRows;
   }
+  async setWinner(gameTableId: number, seatName: SeatName): Promise<number> {
+    const query = `
+    UPDATE seats
+            SET is_last_lap_winner = TRUE
+        WHERE game_table_id = ${gameTableId}
+        AND seat_name = '${seatName}'
+        ;`;
+    const [okPacket] = await connection.execute<OkPacket>(query);
+
+    const resetLastLap = `
+    UPDATE seats
+            SET is_last_lap_winner = FALSE
+        WHERE game_table_id = ${gameTableId}
+        AND seat_name != '${seatName}'
+        ;`;
+
+    await connection.execute<OkPacket>(resetLastLap);
+    return okPacket.affectedRows;
+  }
 
   async setFaceCards(
     gameTableId: number,
@@ -105,7 +124,6 @@ export default class GameCardsRepository {
         ;`;
     const [rows] = await connection.execute<RowDataPacket[]>(selectFaceCards);
     const oldFaceCards = rows[0].face_cards;
-    console.log("rows", rows);
 
     const newFaceCards = `${
       oldFaceCards ? oldFaceCards + CARD_SEPARATOR : ""
@@ -114,20 +132,10 @@ export default class GameCardsRepository {
     const query = `
     UPDATE seats
             SET face_cards = '${newFaceCards}',
-                is_last_lap_winner = TRUE
         WHERE game_table_id = ${gameTableId}
         AND seat_name = '${seatName}'
         ;`;
     const [okPacket] = await connection.execute<OkPacket>(query);
-
-    const resetLastLap = `
-    UPDATE seats
-            SET is_last_lap_winner = FALSE
-        WHERE game_table_id = ${gameTableId}
-        AND seat_name != '${seatName}'
-        ;`;
-
-    await connection.execute<OkPacket>(resetLastLap);
     return okPacket.affectedRows;
   }
 
