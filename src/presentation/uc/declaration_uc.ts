@@ -5,7 +5,9 @@ import { Trump } from "~/domain/Trump";
 import Card from "~/domain/Card";
 import { SeatName } from "~/domain/SeatName";
 import { Declaration } from "~/domain/Declaration";
+import RoundRepository from "~/repository/RoundRepository";
 
+const roundRepository = new RoundRepository();
 const declarationRepository = new DeclarationRepository();
 const seatsRepository = new GameCardsRepository();
 
@@ -40,7 +42,7 @@ export async function declareTrump(
     }
 
     const seats = await seatsRepository.getSeats(gameTableId);
-    const round = await seatsRepository.getRound(gameTableId);
+    const round = await roundRepository.getRound(gameTableId);
     const hands = seats
       .find((seat) => seat.seatName === napoleon)
       ?.hands.concat(round.openCards as [Card, Card])

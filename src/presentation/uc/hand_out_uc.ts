@@ -1,7 +1,9 @@
 import HandOuter from "~/domain/HandOuter";
 import GameCardsRepository from "~/repository/GameCardsRepository";
+import RoundRepository from "~/repository/RoundRepository";
 
 const gameCardsRepository = new GameCardsRepository();
+const roundRepository = new RoundRepository();
 
 export async function handOut(
   gameTableId: number,
@@ -34,9 +36,5 @@ export async function handOut(
     handOutCards.fifthSeat
   );
 
-  await gameCardsRepository.handOutOpen(
-    gameTableId,
-    roundCount,
-    handOutCards.open
-  );
+  await roundRepository.handOutOpen(gameTableId, roundCount, handOutCards.open);
 }

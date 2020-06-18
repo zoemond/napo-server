@@ -3,7 +3,9 @@ import Card from "~/domain/Card";
 import MyGameSight from "~/domain/MyGameSight";
 import GameCardsRepository from "~/repository/GameCardsRepository";
 import DeclarationRepository from "~/repository/DeclarationRepository";
+import RoundRepository from "~/repository/RoundRepository";
 
+const roundRepository = new RoundRepository();
 const gameCardsRepository = new GameCardsRepository();
 const declarationRepository = new DeclarationRepository();
 
@@ -26,7 +28,7 @@ export async function playCard(
     }
     const hands = seat.hands.filter((hand) => !hand.equals(playCard));
 
-    const round = await gameCardsRepository.getRound(gameTableId);
+    const round = await roundRepository.getRound(gameTableId);
     const declaration = await declarationRepository.getDeclaration(
       gameTableId,
       round.roundCount

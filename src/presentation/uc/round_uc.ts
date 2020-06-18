@@ -1,12 +1,14 @@
 import { RoundResponse } from "../response/RoundResponse";
 import GameCardsRepository from "~/repository/GameCardsRepository";
 import { handOut } from "./hand_out_uc";
+import RoundRepository from "~/repository/RoundRepository";
 
 const gameCardsRepository = new GameCardsRepository();
+const roundRepository = new RoundRepository();
 
 export async function getRound(gameTableId: number): Promise<RoundResponse> {
   try {
-    const round = await gameCardsRepository.getRound(gameTableId);
+    const round = await roundRepository.getRound(gameTableId);
     return { gameTableId, round };
   } catch (error) {
     console.error("error", error);
@@ -17,10 +19,10 @@ export async function getRound(gameTableId: number): Promise<RoundResponse> {
 export async function newRound(gameTableId: number): Promise<RoundResponse> {
   try {
     await gameCardsRepository.resetSeatsCards(gameTableId);
-    await gameCardsRepository.newRound(gameTableId);
-    const roundForHandOut = await gameCardsRepository.getRound(gameTableId);
+    await roundRepository.newRound(gameTableId);
+    const roundForHandOut = await roundRepository.getRound(gameTableId);
     await handOut(gameTableId, roundForHandOut.roundCount);
-    const round = await gameCardsRepository.getRound(gameTableId);
+    const round = await roundRepository.getRound(gameTableId);
     return { gameTableId, round };
   } catch (error) {
     console.error("error", error);
@@ -32,8 +34,8 @@ export async function completeRound(
   gameTableId: number
 ): Promise<RoundResponse> {
   try {
-    const round = await gameCardsRepository.getRound(gameTableId);
-    await gameCardsRepository.completeRound(gameTableId, round.roundCount);
+    const round = await roundRepository.getRound(gameTableId);
+    await roundRepository.completeRound(gameTableId, round.roundCount);
     return { gameTableId, round };
   } catch (error) {
     console.error("error", error);

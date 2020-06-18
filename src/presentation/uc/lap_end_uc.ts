@@ -2,7 +2,9 @@ import GameCardsRepository from "~/repository/GameCardsRepository";
 import DeclarationRepository from "~/repository/DeclarationRepository";
 import { Policy } from "~/domain/Policy";
 import Card from "~/domain/Card";
+import RoundRepository from "~/repository/RoundRepository";
 
+const roundRepository = new RoundRepository();
 const declarationRepository = new DeclarationRepository();
 const gameCardsRepository = new GameCardsRepository();
 
@@ -16,7 +18,7 @@ export async function judgeWinnerIfLapEnds(gameTableId: number): Promise<void> {
       return;
     }
 
-    const round = await gameCardsRepository.getRound(gameTableId);
+    const round = await roundRepository.getRound(gameTableId);
     const declaration = await declarationRepository.getDeclaration(
       gameTableId,
       round.roundCount

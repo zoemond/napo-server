@@ -2,9 +2,9 @@ import socketIO from "socket.io";
 import { getRound, newRound } from "../uc/round_uc";
 import { readSeats } from "../uc/seats_uc";
 import { calculateScore } from "../uc/score_uc";
-import GameCardsRepository from "~/repository/GameCardsRepository";
+import RoundRepository from "~/repository/RoundRepository";
 
-const gameCardsRepository = new GameCardsRepository();
+const roundRepository = new RoundRepository();
 
 export function setStartRoundEvent(
   socket: socketIO.Socket,
@@ -35,7 +35,7 @@ export function setCalcScoreAndNewRoundEvent(
 ): void {
   socket.on("calc_score_and_new_round", async (playCardRequests) => {
     const { gameTableId } = playCardRequests[0]; //一つ送ってもArrayになるので
-    const round = await gameCardsRepository.getRound(gameTableId);
+    const round = await roundRepository.getRound(gameTableId);
     const roundCount = round.roundCount;
     if (roundCount !== 0) {
       await calculateScore(gameTableId, roundCount);
