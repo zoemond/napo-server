@@ -1,6 +1,5 @@
 import socketIO from "socket.io";
 import GameCardsRepository from "~/repository/GameCardsRepository";
-import HandOuter from "~/domain/HandOuter";
 import Card from "~/domain/Card";
 import { SeatName } from "~/domain/SeatName";
 import { Policy } from "~/domain/Policy";
@@ -13,44 +12,10 @@ import { calcScores } from "~/domain/ScoreCalculator";
 import { readSeats } from "../events/seats_events";
 import { openPair } from "../events/open_events";
 import { getRound } from "../events/round_events";
+import { handOut } from "../events/hand_out_events";
 
 const gameCardsRepository = new GameCardsRepository();
 const declarationRepository = new DeclarationRepository();
-
-async function handOut(gameTableId: number, roundCount: number): Promise<void> {
-  const handOutCards = new HandOuter().handOut();
-  await gameCardsRepository.handOutSeat(
-    gameTableId,
-    "first_seat",
-    handOutCards.firstSeat
-  );
-  await gameCardsRepository.handOutSeat(
-    gameTableId,
-    "second_seat",
-    handOutCards.secondSeat
-  );
-  await gameCardsRepository.handOutSeat(
-    gameTableId,
-    "third_seat",
-    handOutCards.thirdSeat
-  );
-  await gameCardsRepository.handOutSeat(
-    gameTableId,
-    "fourth_seat",
-    handOutCards.fourthSeat
-  );
-  await gameCardsRepository.handOutSeat(
-    gameTableId,
-    "fifth_seat",
-    handOutCards.fifthSeat
-  );
-
-  await gameCardsRepository.handOutOpen(
-    gameTableId,
-    roundCount,
-    handOutCards.open
-  );
-}
 
 async function newRound(gameTableId: number): Promise<RoundResponse> {
   try {
@@ -197,12 +162,12 @@ export function setReadRoundEvent(
   });
 }
 
-export function setReadCardsEvent(
+export function setReadSeatsEvent(
   socket: socketIO.Socket,
   io: SocketIO.Server
 ): void {
-  socket.on("read_seats", async (handOutRequests) => {
-    const { gameTableId } = handOutRequests[0]; //一つ送ってもArrayになるので
+  socket.on("read_seats", async (readSeatsRequests) => {
+    const { gameTableId } = readSeatsRequests[0]; //一つ送ってもArrayになるので
 
     const seatsResponse = await readSeats(gameTableId);
     io.emit("seats", seatsResponse);

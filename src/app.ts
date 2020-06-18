@@ -21,7 +21,7 @@ io.on("connection", (socket: socketIO.Socket) => {
   wsGameCardsEvents.setReadRoundEvent(socket, io);
   wsGameCardsEvents.setOpenEvent(socket, io);
   wsGameCardsEvents.setStartRoundEvent(socket, io);
-  wsGameCardsEvents.setReadCardsEvent(socket, io);
+  wsGameCardsEvents.setReadSeatsEvent(socket, io);
   wsGameCardsEvents.setPlayCardEvent(socket, io);
   wsGameCardsEvents.setCalcScoreAndNewRoundEvent(socket, io);
   wsDeclarationEvents.setDeclareTrumpEvent(socket, io);
