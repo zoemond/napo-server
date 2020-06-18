@@ -11,6 +11,7 @@ import { ErrorResponse } from "../response/ErrorResponse";
 import MyGameSight from "~/domain/MyGameSight";
 import { calcScores } from "~/domain/ScoreCalculator";
 import { readSeats } from "../events/seats_events";
+import { openPair } from "../events/open_events";
 
 const gameCardsRepository = new GameCardsRepository();
 const declarationRepository = new DeclarationRepository();
@@ -20,17 +21,6 @@ async function getRound(gameTableId: number): Promise<RoundResponse> {
     const round = await gameCardsRepository.getRound(gameTableId);
     return { gameTableId, round };
   } catch (error) {
-    return { errorMessage: error.message };
-  }
-}
-
-async function open(gameTableId: number): Promise<RoundResponse> {
-  try {
-    await gameCardsRepository.open(gameTableId);
-    const round = await gameCardsRepository.getRound(gameTableId);
-    return { gameTableId, round };
-  } catch (error) {
-    console.error("error", error);
     return { errorMessage: error.message };
   }
 }
@@ -189,7 +179,7 @@ export function setOpenEvent(
 ): void {
   socket.on("open", async (openRequests) => {
     const { gameTableId } = openRequests[0]; //一つ送ってもArrayになるので
-    const roundResponse = await open(gameTableId);
+    const roundResponse = await openPair(gameTableId);
     io.emit("round", roundResponse);
   });
 }
