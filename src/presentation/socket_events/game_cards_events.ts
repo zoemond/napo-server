@@ -2,7 +2,6 @@ import socketIO from "socket.io";
 import GameCardsRepository from "~/repository/GameCardsRepository";
 import Card from "~/domain/Card";
 import { SeatName } from "~/domain/SeatName";
-import { Policy } from "~/domain/Policy";
 import DeclarationRepository from "~/repository/DeclarationRepository";
 import { RoundSuccessResponse } from "../response/RoundResponse";
 import { getDeclaration } from "~/presentation/socket_events/declaration_events";
@@ -12,44 +11,11 @@ import { calcScores } from "~/domain/ScoreCalculator";
 import { readSeats } from "../events/seats_events";
 import { openPair } from "../events/open_events";
 import { getRound, newRound } from "../events/round_events";
+import { judgeWinnerIfLapEnds } from "../events/lap_end_events";
 
 const gameCardsRepository = new GameCardsRepository();
 const declarationRepository = new DeclarationRepository();
 
-async function judgeWinnerIfLapEnds(gameTableId: number): Promise<void> {
-  try {
-    const seats = await gameCardsRepository.getSeats(gameTableId);
-    const lapSeats = seats.filter((s) => s.playCard).map((s) => s.toLapSeat());
-
-    const isLapEnd = lapSeats.length === 5;
-    if (!isLapEnd) {
-      return;
-    }
-
-    const round = await gameCardsRepository.getRound(gameTableId);
-    const declaration = await declarationRepository.getDeclaration(
-      gameTableId,
-      round.roundCount
-    );
-    const winner = new Policy().lapWinner(lapSeats, declaration.trump);
-
-    gameCardsRepository.setWinner(gameTableId, winner.seatName);
-
-    const faceCards = seats
-      .map((seat) => seat.playCard as Card)
-      .filter((card) => card.isFaceCard());
-    if (faceCards.length > 0) {
-      await gameCardsRepository.setFaceCards(
-        gameTableId,
-        winner.seatName,
-        faceCards
-      );
-    }
-    await gameCardsRepository.resetPlayCards(gameTableId);
-  } catch (error) {
-    console.error(error);
-  }
-}
 async function calculateScore(
   gameTableId: number,
   roundCount: number
