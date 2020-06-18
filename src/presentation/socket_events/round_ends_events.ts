@@ -1,5 +1,4 @@
 import socketIO from "socket.io";
-import { SeatsResponse } from "../response/SeatsResponse";
 import GameCardsRepository from "~/repository/GameCardsRepository";
 import { RoundResponse } from "../response/RoundResponse";
 
@@ -9,15 +8,6 @@ async function getRound(gameTableId: number): Promise<RoundResponse> {
   try {
     const round = await gameCardsRepository.getRound(gameTableId);
     return { gameTableId, round };
-  } catch (error) {
-    return { errorMessage: error.message };
-  }
-}
-
-export async function readSeats(gameTableId: number): Promise<SeatsResponse> {
-  try {
-    const seats = await gameCardsRepository.getSeats(gameTableId);
-    return { gameTableId, seats };
   } catch (error) {
     return { errorMessage: error.message };
   }

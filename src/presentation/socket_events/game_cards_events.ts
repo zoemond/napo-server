@@ -1,5 +1,4 @@
 import socketIO from "socket.io";
-import { SeatsResponse } from "../response/SeatsResponse";
 import GameCardsRepository from "~/repository/GameCardsRepository";
 import HandOuter from "~/domain/HandOuter";
 import Card from "~/domain/Card";
@@ -11,6 +10,7 @@ import { getDeclaration } from "~/presentation/socket_events/declaration_events"
 import { ErrorResponse } from "../response/ErrorResponse";
 import MyGameSight from "~/domain/MyGameSight";
 import { calcScores } from "~/domain/ScoreCalculator";
+import { readSeats } from "../events/seats_events";
 
 const gameCardsRepository = new GameCardsRepository();
 const declarationRepository = new DeclarationRepository();
@@ -19,15 +19,6 @@ async function getRound(gameTableId: number): Promise<RoundResponse> {
   try {
     const round = await gameCardsRepository.getRound(gameTableId);
     return { gameTableId, round };
-  } catch (error) {
-    return { errorMessage: error.message };
-  }
-}
-
-export async function readSeats(gameTableId: number): Promise<SeatsResponse> {
-  try {
-    const seats = await gameCardsRepository.getSeats(gameTableId);
-    return { gameTableId, seats };
   } catch (error) {
     return { errorMessage: error.message };
   }

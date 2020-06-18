@@ -6,7 +6,7 @@ import DeclarationRepository from "~/repository/DeclarationRepository";
 import { DeclarationResponse } from "../response/DeclarationResponse";
 import { Trump } from "~/domain/Trump";
 import { Declaration } from "~/domain/Declaration";
-import { readSeats } from "./game_cards_events";
+import { readSeats } from "../events/seats_events";
 
 const declarationRepository = new DeclarationRepository();
 const seatsRepository = new GameCardsRepository();
