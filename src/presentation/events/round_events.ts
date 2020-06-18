@@ -26,3 +26,16 @@ export async function newRound(gameTableId: number): Promise<RoundResponse> {
     return { errorMessage: error.message };
   }
 }
+
+export async function completeRound(
+  gameTableId: number
+): Promise<RoundResponse> {
+  try {
+    const round = await gameCardsRepository.getRound(gameTableId);
+    await gameCardsRepository.completeRound(gameTableId, round.roundCount);
+    return { gameTableId, round };
+  } catch (error) {
+    console.error("error", error);
+    return { errorMessage: error.message };
+  }
+}
