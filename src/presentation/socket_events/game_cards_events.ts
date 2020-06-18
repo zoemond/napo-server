@@ -4,7 +4,6 @@ import Card from "~/domain/Card";
 import { SeatName } from "~/domain/SeatName";
 import DeclarationRepository from "~/repository/DeclarationRepository";
 import { RoundSuccessResponse } from "../response/RoundResponse";
-import { getDeclaration } from "~/presentation/socket_events/declaration_events";
 import { ErrorResponse } from "../response/ErrorResponse";
 import MyGameSight from "~/domain/MyGameSight";
 import { calcScores } from "~/domain/ScoreCalculator";
@@ -12,6 +11,7 @@ import { readSeats } from "../events/seats_events";
 import { openPair } from "../events/open_events";
 import { getRound, newRound } from "../events/round_events";
 import { judgeWinnerIfLapEnds } from "../events/lap_end_events";
+import { getDeclaration } from "../events/declaration_events";
 
 const gameCardsRepository = new GameCardsRepository();
 const declarationRepository = new DeclarationRepository();

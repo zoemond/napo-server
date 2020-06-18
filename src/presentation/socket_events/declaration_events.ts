@@ -11,21 +11,6 @@ import { readSeats } from "../events/seats_events";
 const declarationRepository = new DeclarationRepository();
 const seatsRepository = new GameCardsRepository();
 
-export async function getDeclaration(
-  gameTableId: number,
-  roundCount: number
-): Promise<DeclarationResponse> {
-  try {
-    const declaration = await declarationRepository.getDeclaration(
-      gameTableId,
-      roundCount
-    );
-    return { gameTableId, declaration };
-  } catch (error) {
-    return { errorMessage: error.message };
-  }
-}
-
 async function declareTrump(
   gameTableId: number,
   trump: Trump,
