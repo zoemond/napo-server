@@ -1,32 +1,17 @@
 import socketIO from "socket.io";
 import GameCardsRepository from "~/repository/GameCardsRepository";
 import Card from "~/domain/Card";
-import DeclarationRepository from "~/repository/DeclarationRepository";
 import { RoundSuccessResponse } from "../response/RoundResponse";
 import { ErrorResponse } from "../response/ErrorResponse";
-import { calcScores } from "~/domain/ScoreCalculator";
 import { readSeats } from "../events/seats_events";
 import { openPair } from "../events/open_events";
 import { getRound, newRound } from "../events/round_events";
 import { judgeWinnerIfLapEnds } from "../events/lap_end_events";
 import { getDeclaration } from "../events/declaration_events";
 import { playCard } from "../events/play_cards_events";
+import { calculateScore } from "../events/score_events";
 
 const gameCardsRepository = new GameCardsRepository();
-const declarationRepository = new DeclarationRepository();
-
-async function calculateScore(
-  gameTableId: number,
-  roundCount: number
-): Promise<void> {
-  const seats = await gameCardsRepository.getSeats(gameTableId);
-  const declaration = await declarationRepository.getDeclaration(
-    gameTableId,
-    roundCount
-  );
-  const scores = calcScores(seats, declaration);
-  gameCardsRepository.saveScores(gameTableId, scores);
-}
 
 export function setStartRoundEvent(
   socket: socketIO.Socket,
