@@ -11,13 +11,10 @@ export function setCreateGameTableEvent(
   });
 }
 
-export function setReadGameTablesEvent(
-  socket: socketIO.Socket,
-  io: SocketIO.Server
-): void {
+export function setReadGameTablesEvent(socket: socketIO.Socket): void {
   socket.on("read_game_tables", async () => {
     const response = await readGameTables();
-    io.emit("game_tables", response);
+    socket.emit("game_tables", response);
   });
 }
 

@@ -4,15 +4,12 @@ import { readSeats } from "../uc/seats_uc";
 import { judgeWinnerIfLapEnds } from "../uc/lap_end_uc";
 import { playCard } from "../uc/play_cards_uc";
 
-export function setReadSeatsEvent(
-  socket: socketIO.Socket,
-  io: SocketIO.Server
-): void {
+export function setReadSeatsEvent(socket: socketIO.Socket): void {
   socket.on("read_seats", async (readSeatsRequests) => {
     const { gameTableId } = readSeatsRequests[0]; //一つ送ってもArrayになるので
 
     const seatsResponse = await readSeats(gameTableId);
-    io.emit("seats", seatsResponse);
+    socket.emit("seats", seatsResponse);
   });
 }
 

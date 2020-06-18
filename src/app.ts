@@ -16,12 +16,13 @@ const server = http.createServer(app);
 const io = socketIO(server);
 
 io.on("connection", (socket: socketIO.Socket) => {
+  wsGameTableEvents.setReadGameTablesEvent(socket);
+  wsGameCardsEvents.setReadSeatsEvent(socket);
+  wsRoundEvents.setReadRoundEvent(socket);
+
   wsGameTableEvents.setCreateGameTableEvent(socket, io);
-  wsGameTableEvents.setReadGameTablesEvent(socket, io);
   wsGameTableEvents.setSitDownEvent(socket, io);
-  wsGameCardsEvents.setReadSeatsEvent(socket, io);
   wsGameCardsEvents.setPlayCardEvent(socket, io);
-  wsRoundEvents.setReadRoundEvent(socket, io);
   wsRoundEvents.setStartRoundEvent(socket, io);
   wsRoundEvents.setCalcScoreAndNewRoundEvent(socket, io);
   wsRoundEndsEvents.setCompleteRoundEvent(socket, io);
