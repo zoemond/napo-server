@@ -4,7 +4,6 @@ import Card from "~/domain/Card";
 import { RoundSuccessResponse } from "../response/RoundResponse";
 import { ErrorResponse } from "../response/ErrorResponse";
 import { readSeats } from "../events/seats_events";
-import { openPair } from "../events/open_events";
 import { getRound, newRound } from "../events/round_events";
 import { judgeWinnerIfLapEnds } from "../events/lap_end_events";
 import { getDeclaration } from "../events/declaration_events";
@@ -24,17 +23,6 @@ export function setStartRoundEvent(
     io.emit("round", roundResponse);
     io.emit("seats", seatResponse);
     io.emit("declaration", { gameTableId });
-  });
-}
-
-export function setOpenEvent(
-  socket: socketIO.Socket,
-  io: SocketIO.Server
-): void {
-  socket.on("open", async (openRequests) => {
-    const { gameTableId } = openRequests[0]; //一つ送ってもArrayになるので
-    const roundResponse = await openPair(gameTableId);
-    io.emit("round", roundResponse);
   });
 }
 

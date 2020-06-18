@@ -19,12 +19,12 @@ io.on("connection", (socket: socketIO.Socket) => {
   wsGameTableEvents.setReadGameTablesEvent(socket, io);
   wsGameTableEvents.setSitDownEvent(socket, io);
   wsGameCardsEvents.setReadRoundEvent(socket, io);
-  wsGameCardsEvents.setOpenEvent(socket, io);
   wsGameCardsEvents.setStartRoundEvent(socket, io);
   wsGameCardsEvents.setReadSeatsEvent(socket, io);
   wsGameCardsEvents.setPlayCardEvent(socket, io);
   wsGameCardsEvents.setCalcScoreAndNewRoundEvent(socket, io);
   wsDeclarationEvents.setDeclareTrumpEvent(socket, io);
+  wsDeclarationEvents.setOpenPairEvent(socket, io);
   wsRoundEndsEvents.setCompleteRoundEvent(socket, io);
 });
 
