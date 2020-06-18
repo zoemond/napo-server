@@ -9,6 +9,7 @@ export async function readGameTables(): Promise<GameTablesResponse> {
     const list = await gameTableRepository.listGameTables();
     return { gameTables: list };
   } catch (error) {
+    console.error("error", error);
     return { errorMessage: error.message };
   }
 }
@@ -17,6 +18,7 @@ export async function createGameTable(): Promise<GameTablesResponse> {
   try {
     await gameTableRepository.createGameTable();
   } catch (error) {
+    console.error("error", error);
     return { errorMessage: error.message };
   }
   return readGameTables();
@@ -30,6 +32,7 @@ export async function sitDown(
   try {
     await gameTableRepository.sitDown(gameTableId, seatName, userName);
   } catch (error) {
+    console.error("error", error);
     return { errorMessage: error.message };
   }
   return readGameTables();

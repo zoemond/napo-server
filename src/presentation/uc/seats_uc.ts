@@ -8,6 +8,7 @@ export async function readSeats(gameTableId: number): Promise<SeatsResponse> {
     const seats = await gameCardsRepository.getSeats(gameTableId);
     return { gameTableId, seats };
   } catch (error) {
+    console.error("error", error);
     return { errorMessage: error.message };
   }
 }

@@ -9,6 +9,7 @@ export async function getRound(gameTableId: number): Promise<RoundResponse> {
     const round = await gameCardsRepository.getRound(gameTableId);
     return { gameTableId, round };
   } catch (error) {
+    console.error("error", error);
     return { errorMessage: error.message };
   }
 }

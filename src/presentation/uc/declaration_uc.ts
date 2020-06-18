@@ -20,6 +20,7 @@ export async function getDeclaration(
     );
     return { gameTableId, declaration };
   } catch (error) {
+    console.error("error", error);
     return { errorMessage: error.message };
   }
 }
@@ -71,6 +72,7 @@ export async function declareTrump(
     );
     return { gameTableId, declaration };
   } catch (error) {
+    console.error("error", error);
     return { errorMessage: error.message };
   }
 }
