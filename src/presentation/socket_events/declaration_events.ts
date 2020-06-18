@@ -21,6 +21,10 @@ async function declareTrump(
 ): Promise<DeclarationResponse> {
   try {
     const [discard1, discard2] = discards;
+    if (discard1.equals(discard2)) {
+      throw new Error("同じカードは捨てられません.");
+    }
+
     const seats = await seatsRepository.getSeats(gameTableId);
     const round = await seatsRepository.getRound(gameTableId);
     const hands = seats
@@ -71,18 +75,14 @@ export function setDeclareTrumpEvent(
       napoleon,
       discards,
     } = declareRequests[0]; //一つ送ってもArrayになるので
-    const [discard1, discard2] = discards.map(Card.fromObj);
 
-    if (discard1.equals(discard2)) {
-      throw new Error("同じカードは捨てられません.");
-    }
     const declarationResponse = await declareTrump(
       gameTableId,
       trump,
       faceCardNumber,
       Card.fromObj(aideCard),
       napoleon,
-      [discard1, discard2]
+      discards.map(Card.fromObj)
     );
     io.emit("declaration", declarationResponse);
 
