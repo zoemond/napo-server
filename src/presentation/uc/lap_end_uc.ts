@@ -1,6 +1,6 @@
 import GameCardsRepository from "~/repository/GameCardsRepository";
 import DeclarationRepository from "~/repository/DeclarationRepository";
-import { Policy } from "~/domain/Policy";
+import { CardRankRule } from "~/domain/CardRankRule";
 import Card from "~/domain/Card";
 import RoundRepository from "~/repository/RoundRepository";
 
@@ -23,7 +23,7 @@ export async function judgeWinnerIfLapEnds(gameTableId: number): Promise<void> {
       gameTableId,
       round.roundCount
     );
-    const winner = new Policy().lapWinner(lapSeats, declaration.trump);
+    const winner = new CardRankRule().winner(lapSeats, declaration.trump);
 
     gameCardsRepository.setWinner(gameTableId, winner.seatName);
 

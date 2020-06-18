@@ -3,8 +3,8 @@ import { Trump } from "./Trump";
 import { Suit } from "./Suit";
 import { LapSeat } from "./LapSeat";
 
-export class Policy {
-  lapWinner(seatCards: LapSeat[], trump: Trump): LapSeat {
+export class CardRankRule {
+  winner(seatCards: LapSeat[], trump: Trump): LapSeat {
     const winner =
       this.mighty(seatCards) ||
       this.jack(trump, seatCards) ||
