@@ -1,5 +1,5 @@
 import socketIO from "socket.io";
-import { getRound, completeRound } from "../events/round_events";
+import { getRound, completeRound } from "../uc/round_uc";
 
 export function setCompleteRoundEvent(
   socket: socketIO.Socket,

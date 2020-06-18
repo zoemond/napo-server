@@ -1,6 +1,6 @@
 import { RoundResponse } from "../response/RoundResponse";
 import GameCardsRepository from "~/repository/GameCardsRepository";
-import { handOut } from "./hand_out_events";
+import { handOut } from "./hand_out_uc";
 
 const gameCardsRepository = new GameCardsRepository();
 

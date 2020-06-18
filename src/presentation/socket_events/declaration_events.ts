@@ -1,8 +1,8 @@
 import socketIO from "socket.io";
 import Card from "~/domain/Card";
-import { readSeats } from "../events/seats_events";
-import { declareTrump } from "../events/declaration_events";
-import { openPair } from "../events/open_events";
+import { readSeats } from "../uc/seats_uc";
+import { declareTrump } from "../uc/declaration_uc";
+import { openPair } from "../uc/open_uc";
 
 export function setDeclareTrumpEvent(
   socket: socketIO.Socket,

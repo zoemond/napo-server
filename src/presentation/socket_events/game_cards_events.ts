@@ -3,12 +3,12 @@ import GameCardsRepository from "~/repository/GameCardsRepository";
 import Card from "~/domain/Card";
 import { RoundSuccessResponse } from "../response/RoundResponse";
 import { ErrorResponse } from "../response/ErrorResponse";
-import { readSeats } from "../events/seats_events";
-import { getRound, newRound } from "../events/round_events";
-import { judgeWinnerIfLapEnds } from "../events/lap_end_events";
-import { getDeclaration } from "../events/declaration_events";
-import { playCard } from "../events/play_cards_events";
-import { calculateScore } from "../events/score_events";
+import { readSeats } from "../uc/seats_uc";
+import { getRound, newRound } from "../uc/round_uc";
+import { judgeWinnerIfLapEnds } from "../uc/lap_end_uc";
+import { getDeclaration } from "../uc/declaration_uc";
+import { playCard } from "../uc/play_cards_uc";
+import { calculateScore } from "../uc/score_uc";
 
 const gameCardsRepository = new GameCardsRepository();
 

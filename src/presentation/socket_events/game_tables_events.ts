@@ -1,9 +1,5 @@
 import socketIO from "socket.io";
-import {
-  createGameTable,
-  readGameTables,
-  sitDown,
-} from "../events/game_tables_events";
+import { createGameTable, readGameTables, sitDown } from "../uc/game_tables_uc";
 
 export function setCreateGameTableEvent(
   socket: socketIO.Socket,
