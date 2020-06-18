@@ -12,18 +12,10 @@ import MyGameSight from "~/domain/MyGameSight";
 import { calcScores } from "~/domain/ScoreCalculator";
 import { readSeats } from "../events/seats_events";
 import { openPair } from "../events/open_events";
+import { getRound } from "../events/round_events";
 
 const gameCardsRepository = new GameCardsRepository();
 const declarationRepository = new DeclarationRepository();
-
-async function getRound(gameTableId: number): Promise<RoundResponse> {
-  try {
-    const round = await gameCardsRepository.getRound(gameTableId);
-    return { gameTableId, round };
-  } catch (error) {
-    return { errorMessage: error.message };
-  }
-}
 
 async function handOut(gameTableId: number, roundCount: number): Promise<void> {
   const handOutCards = new HandOuter().handOut();

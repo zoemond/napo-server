@@ -1,17 +1,9 @@
 import socketIO from "socket.io";
 import GameCardsRepository from "~/repository/GameCardsRepository";
 import { RoundResponse } from "../response/RoundResponse";
+import { getRound } from "../events/round_events";
 
 const gameCardsRepository = new GameCardsRepository();
-
-async function getRound(gameTableId: number): Promise<RoundResponse> {
-  try {
-    const round = await gameCardsRepository.getRound(gameTableId);
-    return { gameTableId, round };
-  } catch (error) {
-    return { errorMessage: error.message };
-  }
-}
 
 async function completeRound(gameTableId: number): Promise<RoundResponse> {
   try {
