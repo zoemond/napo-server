@@ -12,13 +12,13 @@ const declarationRepository = new DeclarationRepository();
 const seatsRepository = new GameCardsRepository();
 
 export async function getDeclaration(
-  gameTableId: number,
-  roundCount: number
+  gameTableId: number
 ): Promise<DeclarationResponse> {
   try {
+    const round = await roundRepository.getRound(gameTableId);
     const declaration = await declarationRepository.getDeclaration(
       gameTableId,
-      roundCount
+      round.roundCount
     );
     return { gameTableId, declaration };
   } catch (error) {

@@ -19,6 +19,7 @@ io.on("connection", (socket: socketIO.Socket) => {
   wsGameTableEvents.setReadGameTablesEvent(socket);
   wsGameCardsEvents.setReadSeatsEvent(socket);
   wsRoundEvents.setReadRoundEvent(socket);
+  wsDeclarationEvents.setReadDeclarationEvent(socket);
 
   wsGameTableEvents.setCreateGameTableEvent(socket, io);
   wsGameTableEvents.setSitDownEvent(socket, io);
