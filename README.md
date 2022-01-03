@@ -3,7 +3,7 @@
 ## db
 
 1. mysql を install(TODO: docker)
-2. `db/*.sql`を流す
+2. `db/create_*.sql`を流す
 3. 設定ファイルを配置
 
 ```sh
