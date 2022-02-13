@@ -21,6 +21,13 @@ echo '{
 
 ## Server
 
+0. 設定ファイルを配置
+
+```sh
+CLIENT_DIR=../napo-client/
+CLIENT_DOMAIN=localhost:8080
+```
+
 1. `npm i`
 2. `npm run build:watch`
 
