@@ -20,7 +20,6 @@
     "@types/mysql": "^2.15.10",
     "@types/mysql2": "github:types/mysql2",
     "@types/node": "^13.13.2",
-    "@types/socket.io": "^2.1.4",
     "@typescript-eslint/eslint-plugin": "^2.29.0",
     "@typescript-eslint/parser": "^2.29.0",
     "dotenv-webpack": "^1.7.0",
