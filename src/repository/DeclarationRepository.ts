@@ -18,7 +18,7 @@ export default class DeclarationRepository {
     discards: [Card, Card]
   ): Promise<number> {
     const query = `
-    INSERT INTO declarations 
+    INSERT INTO declarations
         VALUES (
             ${gameTableId},
             ${roundCount},
@@ -45,7 +45,7 @@ export default class DeclarationRepository {
     roundCount: number
   ): Promise<Declaration> {
     const query = `
-    SELECT * 
+    SELECT *
         FROM declarations
         WHERE game_table_id = ${gameTableId}
         AND round_count = ${roundCount}

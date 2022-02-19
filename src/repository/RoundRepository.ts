@@ -8,7 +8,7 @@ const CARD_SEPARATOR = "_";
 export default class RoundRepository {
   async newRound(gameTableId: number): Promise<number> {
     const query = `
-    INSERT INTO rounds (game_table_id, round_count) 
+    INSERT INTO rounds (game_table_id, round_count)
             SELECT game_table_id, round_count + 1
                 FROM rounds
                 WHERE game_table_id = ${gameTableId}
@@ -24,7 +24,7 @@ export default class RoundRepository {
     roundCount: number
   ): Promise<number> {
     const query = `
-    UPDATE rounds 
+    UPDATE rounds
             SET state = 'completed'
             WHERE game_table_id = ${gameTableId}
             AND round_count = ${roundCount}
@@ -35,8 +35,8 @@ export default class RoundRepository {
 
   async getRound(gameTableId: number): Promise<Round> {
     const query = `
-    SELECT * 
-        FROM rounds 
+    SELECT *
+        FROM rounds
         WHERE game_table_id = ${gameTableId}
         ORDER BY round_count DESC
         LIMIT 1

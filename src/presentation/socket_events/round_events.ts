@@ -8,7 +8,7 @@ const roundRepository = new RoundRepository();
 
 export function setStartRoundEvent(
   socket: socketIO.Socket,
-  io: SocketIO.Server
+  io: socketIO.Server
 ): void {
   socket.on("start_round", async (startRoundRequests) => {
     const { gameTableId } = startRoundRequests[0]; //一つ送ってもArrayになるので
@@ -31,7 +31,7 @@ export function setReadRoundEvent(socket: socketIO.Socket): void {
 
 export function setCalcScoreAndNewRoundEvent(
   socket: socketIO.Socket,
-  io: SocketIO.Server
+  io: socketIO.Server
 ): void {
   socket.on("calc_score_and_new_round", async (playCardRequests) => {
     const { gameTableId } = playCardRequests[0]; //一つ送ってもArrayになるので

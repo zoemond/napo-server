@@ -1,8 +1,11 @@
 # Dev Setup
+
 ## db
-1. mysqlをinstall(TODO: docker)
-2. `db/*.sql`を流す
+
+1. mysql を install(TODO: docker)
+2. `db/create_*.sql`を流す
 3. 設定ファイルを配置
+
 ```sh
 echo '{
     "host": "127.0.0.1",
@@ -15,12 +18,25 @@ echo '{
 }
 ' >  db/db-config.json
 ```
+
 ## Server
+
+0. 設定ファイルを配置
+
+```sh
+CLIENT_DIR=../napo-client/
+CLIENT_DOMAIN=localhost:8080
+```
+
 1. `npm i`
 2. `npm run build:watch`
-  - 差分ビルドします。(ビルドのみ)
+
+- 差分ビルドします。(ビルドのみ)
+
 3. `npm run demon`
-  - サーバを起動します。監視ファイルに変更があると起動し直します
+
+- サーバを起動します。監視ファイルに変更があると起動し直します
 
 ## 確認
-localhost:<port>にアクセス.okぽかったらok
+
+localhost:<port>にアクセス.ok ぽかったら ok

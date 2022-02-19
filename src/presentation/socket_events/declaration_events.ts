@@ -3,11 +3,10 @@ import Card from "~/domain/Card";
 import { readSeats } from "../uc/seats_uc";
 import { declareTrump, getDeclaration } from "../uc/declaration_uc";
 import { openPair } from "../uc/open_uc";
-import { getRound } from "../uc/round_uc";
 
 export function setDeclareTrumpEvent(
   socket: socketIO.Socket,
-  io: SocketIO.Server
+  io: socketIO.Server
 ): void {
   socket.on("declare_trump", async (declareRequests) => {
     const {
@@ -37,7 +36,7 @@ export function setDeclareTrumpEvent(
 
 export function setOpenPairEvent(
   socket: socketIO.Socket,
-  io: SocketIO.Server
+  io: socketIO.Server
 ): void {
   socket.on("open", async (openRequests) => {
     const { gameTableId } = openRequests[0]; //一つ送ってもArrayになるので

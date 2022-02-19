@@ -15,7 +15,7 @@ export function setReadSeatsEvent(socket: socketIO.Socket): void {
 
 export function setPlayCardEvent(
   socket: socketIO.Socket,
-  io: SocketIO.Server
+  io: socketIO.Server
 ): void {
   socket.on("play_card", async (playCardRequests) => {
     const { gameTableId, seatName, card } = playCardRequests[0]; //一つ送ってもArrayになるので
