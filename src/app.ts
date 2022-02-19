@@ -13,7 +13,11 @@ const app = express();
 app.use(express.static(process.env.CLIENT_DIR));
 
 const server = http.createServer(app);
-const io = socketIO(server);
+const io = new socketIO.Server(server, {
+  cors: {
+    origin: "*",
+  },
+});
 
 io.on("connection", (socket: socketIO.Socket) => {
   wsGameTableEvents.setReadGameTablesEvent(socket);
