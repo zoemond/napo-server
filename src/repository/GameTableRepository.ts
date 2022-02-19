@@ -18,7 +18,7 @@ export default class GameTableRepository {
 
   async readGameTable(gameTableId: number): Promise<GameTable> {
     const query = `
-    SELECT * 
+    SELECT *
         FROM game_tables
         WHERE id = ${gameTableId}
         ;`;
@@ -50,7 +50,7 @@ export default class GameTableRepository {
       .join(",");
     const query = `
     INSERT INTO seats
-                (game_table_id, seat_name) 
+                (game_table_id, seat_name)
         VALUES ${idSeatNameValues}`;
 
     const [okPacket] = await connection.execute<OkPacket>(query);
@@ -68,7 +68,7 @@ export default class GameTableRepository {
     playerName: string
   ): Promise<number> {
     const query = `
-    UPDATE game_tables 
+    UPDATE game_tables
         SET ${seatName} = '${playerName}'
         WHERE id = ${gameTableId}
         ;`;
