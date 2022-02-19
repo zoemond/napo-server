@@ -3,7 +3,6 @@ import Card from "~/domain/Card";
 import { readSeats } from "../uc/seats_uc";
 import { declareTrump, getDeclaration } from "../uc/declaration_uc";
 import { openPair } from "../uc/open_uc";
-import { getRound } from "../uc/round_uc";
 
 export function setDeclareTrumpEvent(
   socket: socketIO.Socket,
