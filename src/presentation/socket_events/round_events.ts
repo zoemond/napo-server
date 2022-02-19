@@ -37,9 +37,7 @@ export function setCalcScoreAndNewRoundEvent(
     const { gameTableId } = playCardRequests[0]; //一つ送ってもArrayになるので
     const round = await roundRepository.getRound(gameTableId);
     const roundCount = round.roundCount;
-    if (roundCount !== 0) {
-      await calculateScore(gameTableId, roundCount);
-    }
+    await calculateScore(gameTableId, roundCount);
     const roundResponse = await newRound(gameTableId);
     const seatResponse = await readSeats(gameTableId);
     io.emit("round", roundResponse);
