@@ -3,7 +3,7 @@ import { createGameTable, readGameTables, sitDown } from "../uc/game_tables_uc";
 
 export function setCreateGameTableEvent(
   socket: socketIO.Socket,
-  io: SocketIO.Server
+  io: socketIO.Server
 ): void {
   socket.on("create_game_table", async () => {
     const response = await createGameTable();
@@ -20,7 +20,7 @@ export function setReadGameTablesEvent(socket: socketIO.Socket): void {
 
 export function setSitDownEvent(
   socket: socketIO.Socket,
-  io: SocketIO.Server
+  io: socketIO.Server
 ): void {
   socket.on("sit_down", async (sitDownRequests) => {
     const { gameTableId, seatName, playerName } = sitDownRequests[0]; //一つ送ってもArrayになるので

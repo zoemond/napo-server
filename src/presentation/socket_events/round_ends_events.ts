@@ -3,7 +3,7 @@ import { getRound, completeRound } from "../uc/round_uc";
 
 export function setCompleteRoundEvent(
   socket: socketIO.Socket,
-  io: SocketIO.Server
+  io: socketIO.Server
 ): void {
   socket.on("complete_round", async (startRoundRequests) => {
     const { gameTableId } = startRoundRequests[0]; //一つ送ってもArrayになるので
