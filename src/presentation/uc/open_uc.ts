@@ -1,5 +1,6 @@
 import { RoundResponse } from "../response/RoundResponse";
 import RoundRepository from "~/repository/RoundRepository";
+import { toErrorResponse } from "../response/ErrorResponse";
 
 const roundRepository = new RoundRepository();
 
@@ -9,7 +10,6 @@ export async function openPair(gameTableId: number): Promise<RoundResponse> {
     const round = await roundRepository.getRound(gameTableId);
     return { gameTableId, round };
   } catch (error) {
-    console.error("error", error);
-    return { errorMessage: error.message };
+    return toErrorResponse(error);
   }
 }

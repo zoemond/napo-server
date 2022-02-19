@@ -6,6 +6,7 @@ import Card from "~/domain/Card";
 import { SeatName } from "~/domain/SeatName";
 import { Declaration } from "~/domain/Declaration";
 import RoundRepository from "~/repository/RoundRepository";
+import { toErrorResponse } from "../response/ErrorResponse";
 
 const roundRepository = new RoundRepository();
 const declarationRepository = new DeclarationRepository();
@@ -22,8 +23,7 @@ export async function getDeclaration(
     );
     return { gameTableId, declaration };
   } catch (error) {
-    console.error("error", error);
-    return { errorMessage: error.message };
+    return toErrorResponse(error);
   }
 }
 
@@ -74,7 +74,6 @@ export async function declareTrump(
     );
     return { gameTableId, declaration };
   } catch (error) {
-    console.error("error", error);
-    return { errorMessage: error.message };
+    return toErrorResponse(error);
   }
 }

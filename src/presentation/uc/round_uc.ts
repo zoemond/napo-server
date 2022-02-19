@@ -2,6 +2,7 @@ import { RoundResponse } from "../response/RoundResponse";
 import GameCardsRepository from "~/repository/GameCardsRepository";
 import { handOut } from "./hand_out_uc";
 import RoundRepository from "~/repository/RoundRepository";
+import { toErrorResponse } from "../response/ErrorResponse";
 
 const gameCardsRepository = new GameCardsRepository();
 const roundRepository = new RoundRepository();
@@ -11,8 +12,7 @@ export async function getRound(gameTableId: number): Promise<RoundResponse> {
     const round = await roundRepository.getRound(gameTableId);
     return { gameTableId, round };
   } catch (error) {
-    console.error("error", error);
-    return { errorMessage: error.message };
+    return toErrorResponse(error);
   }
 }
 
@@ -25,8 +25,7 @@ export async function newRound(gameTableId: number): Promise<RoundResponse> {
     const round = await roundRepository.getRound(gameTableId);
     return { gameTableId, round };
   } catch (error) {
-    console.error("error", error);
-    return { errorMessage: error.message };
+    return toErrorResponse(error);
   }
 }
 
@@ -38,7 +37,6 @@ export async function completeRound(
     await roundRepository.completeRound(gameTableId, round.roundCount);
     return { gameTableId, round };
   } catch (error) {
-    console.error("error", error);
-    return { errorMessage: error.message };
+    return toErrorResponse(error);
   }
 }
