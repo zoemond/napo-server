@@ -27,7 +27,7 @@ const createCalculator = (
     );
 
   if (!napoleon || !aide) {
-    throw new Error();
+    throw new Error("ナポレオンも副官も存在しません");
   }
   const baseScore = getAideScore(napoleon, aide, declaration.faceCardNumber);
 
