@@ -1,4 +1,3 @@
-import cors from 'cors';
 import * as http from "http";
 import socketIO from "socket.io";
 import express from "express";
@@ -10,10 +9,13 @@ import * as wsRoundEndsEvents from "~/presentation/socket_events/round_ends_even
 
 const PORT = process.env.PORT || 7000;
 const app = express();
-// app.use(cors());
 
 const server = http.createServer(app);
-const io = new socketIO.Server(server);
+const io = new socketIO.Server(server, {
+  cors: {
+    origin: "*",
+  },
+});
 
 io.on("connection", (socket: socketIO.Socket) => {
   wsGameTableEvents.setReadGameTablesEvent(socket);
