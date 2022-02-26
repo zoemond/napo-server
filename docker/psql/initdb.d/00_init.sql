@@ -1,0 +1,4 @@
+DROP DATABASE IF EXISTS napo;
+CREATE DATABASE napo;
+
+\c napo;

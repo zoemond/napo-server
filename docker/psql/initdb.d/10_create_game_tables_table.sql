@@ -1,5 +1,7 @@
-CREATE TABLE IF NOT EXISTS napo.game_tables (
-    id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+\c napo;
+
+CREATE TABLE IF NOT EXISTS game_tables (
+    id SERIAL NOT NULL PRIMARY KEY,
     first_seat VARCHAR(255),
     second_seat VARCHAR(255),
     third_seat VARCHAR(255),

@@ -1,6 +1,8 @@
-CREATE TABLE IF NOT EXISTS napo.seats (
+\c napo;
+
+CREATE TABLE IF NOT EXISTS seats (
     game_table_id INT NOT NULL,
-    seat_name enum('first_seat', 'second_seat', 'third_seat', 'fourth_seat', 'fifth_seat') NOT NULL,
+    seat_name seat_name NOT NULL,
     play_card VARCHAR(15),
     is_aide BOOLEAN DEFAULT FALSE,
     is_last_lap_winner BOOLEAN DEFAULT FALSE,
