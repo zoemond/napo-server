@@ -1,0 +1,21 @@
+version: '3.3'
+services:
+  db:
+    container_name: mysql
+    build: ./docker/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: napo
+    ports:
+      - 3306:3306
+    volumes:
+      - ./docker/mysql/initdb.d:/docker-entrypoint-initdb.d
+      - ./docker/mysql/conf.d:/etc/mysql/conf.d
+      - ./log/mysql:/var/log/mysql
+  backend:
+    build: .
+    ports:
+      - 7000:7000
+    environment:
+      - PORT=7000
+    volumes:
+      - .:/repo

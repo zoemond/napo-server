@@ -10,8 +10,6 @@ import * as wsRoundEndsEvents from "~/presentation/socket_events/round_ends_even
 const PORT = process.env.PORT || 7000;
 const app = express();
 
-app.use(express.static(process.env.CLIENT_DIR));
-
 const server = http.createServer(app);
 const io = new socketIO.Server(server, {
   cors: {

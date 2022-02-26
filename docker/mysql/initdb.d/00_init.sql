@@ -1,0 +1,3 @@
+DROP SCHEMA IF EXISTS napo;
+CREATE SCHEMA napo;
+USE napo;
