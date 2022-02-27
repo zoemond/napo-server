@@ -52,7 +52,7 @@ export default class RoundRepository {
 
   async open(gameTableId: number): Promise<number> {
     return (await db.query(
-      "UPDATE rounds SET is opend = TRUE WHERE game_table_id = $1",
+      "UPDATE rounds SET is_opened = TRUE WHERE game_table_id = $1",
       [gameTableId],
     )).rowCount;
   }
