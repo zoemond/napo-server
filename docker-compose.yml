@@ -3,22 +3,22 @@ services:
   db:
     container_name: db
     image: postgres:13.6-alpine
+    command: -c ssl=on -c ssl_cert_file=/var/lib/postgresql/server.crt -c ssl_key_file=/var/lib/postgresql/server.key
     environment:
       POSTGRES_PASSWORD: napo
+      POSTGRES_HOST_AUTH_METHOD: trust
     ports:
       - 5432:5432
     volumes:
       - ./docker/psql/initdb.d:/docker-entrypoint-initdb.d
+      - ./docker/psql/certs/server.crt:/var/lib/postgresql/server.crt
+      - ./docker/psql/certs/server.key:/var/lib/postgresql/server.key
   backend:
     build: .
     ports:
       - 7000:7000
     environment:
-      - PGUSER=postgres
-      - PGHOST=db
-      - PGPASSWORD=napo
-      - PGDATABASE=napo
-      - PGDPORT=5432
-      - PORT=7000
+      DATABASE_URL: postgres://postgres:napo@db:5432/napo
+      PORT: 7000
     volumes:
       - .:/repo
