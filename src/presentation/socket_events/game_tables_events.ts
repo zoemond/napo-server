@@ -23,6 +23,9 @@ export function setSitDownEvent(
   io: socketIO.Server
 ): void {
   socket.on("sit_down", async (sitDownRequests) => {
+    console.log("\n")
+    console.log(sitDownRequests);
+    console.log("\n")
     const { gameTableId, seatName, playerName } = sitDownRequests[0]; //一つ送ってもArrayになるので
 
     const response = await sitDown(gameTableId, seatName, playerName);

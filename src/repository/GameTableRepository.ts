@@ -1,5 +1,4 @@
-import connection from "./connection";
-import { OkPacket, RowDataPacket } from "mysql2";
+import db from "./connection";
 import GameTable from "~/domain/GameTable";
 import { SeatName, orderedSeatNames } from "~/domain/SeatName";
 import { Player } from "~/domain/Player";
@@ -17,20 +16,17 @@ export default class GameTableRepository {
   }
 
   async readGameTable(gameTableId: number): Promise<GameTable> {
-    const query = `
-    SELECT *
-        FROM game_tables
-        WHERE id = ${gameTableId}
-        ;`;
-    const [rows] = await connection.execute<RowDataPacket[]>(query);
+    const { rows } = await db.query(
+      "SELECT * FROM game_tables WHERE id = $1",
+      [gameTableId],
+    );
     const gameTable = rows[0];
     return this.rowToGameTable(gameTable);
   }
 
   async listGameTables(): Promise<GameTable[]> {
-    const query = `SELECT * from game_tables;`;
 
-    const [rows] = await connection.execute<RowDataPacket[]>(query);
+    const { rows } = await db.query("SELECT * FROM game_tables", []);
     return rows.map((row) => this.rowToGameTable(row));
   }
 
@@ -39,27 +35,30 @@ export default class GameTableRepository {
     await this.initSeats(gameTableId);
     return await this.initRound(gameTableId);
   }
+
   private async initGameTable(): Promise<number> {
-    const query = `INSERT INTO game_tables (id) VALUES (0)`;
-    const [okPacket] = await connection.execute<OkPacket>(query);
-    return okPacket.insertId;
+    const { rows } = await db.query(
+      "INSERT INTO game_tables (id) VALUES (nextval('game_tables_id_seq')) RETURNING id",
+    )
+    return rows[0].id;
   }
-  private async initSeats(gameTableId: number): Promise<number> {
+
+  private async initSeats(gameTableId: number): Promise<void> {
     const idSeatNameValues = orderedSeatNames
       .map((seatName) => `(${gameTableId}, '${seatName}')`)
       .join(",");
-    const query = `
-    INSERT INTO seats
-                (game_table_id, seat_name)
-        VALUES ${idSeatNameValues}`;
 
-    const [okPacket] = await connection.execute<OkPacket>(query);
-    return okPacket.insertId;
+    await db.query(
+      `INSERT INTO seats (game_table_id, seat_name) VALUES ${idSeatNameValues}`,
+    )
   }
+
   private async initRound(gameTableId: number): Promise<number> {
-    const query = `INSERT INTO rounds (game_table_id,round_count) VALUES (${gameTableId}, 0)`;
-    const [okPacket] = await connection.execute<OkPacket>(query);
-    return okPacket.insertId;
+    const { rows } = await db.query(
+      "INSERT INTO rounds (game_table_id,round_count) VALUES ($1, 0) RETURNING game_table_id",
+      [gameTableId],
+    )
+    return rows[0].game_table_id;
   }
 
   async sitDown(
@@ -67,12 +66,10 @@ export default class GameTableRepository {
     seatName: SeatName,
     playerName: string
   ): Promise<number> {
-    const query = `
-    UPDATE game_tables
-        SET ${seatName} = '${playerName}'
-        WHERE id = ${gameTableId}
-        ;`;
-    const [okPacket] = await connection.execute<OkPacket>(query);
-    return okPacket.insertId;
+    const { rows } = await db.query(
+      `UPDATE game_tables SET ${seatName} = $1 WHERE id = $2 RETURNING id`,
+      [playerName, gameTableId],
+    )
+    return rows[0].id;
   }
 }
