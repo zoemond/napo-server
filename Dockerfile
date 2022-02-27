@@ -9,6 +9,6 @@ COPY . /repo
 
 WORKDIR /repo
 
-RUN npm run build
+RUN npm install && npm run build
 
 CMD ["npm", "run", "start"]
