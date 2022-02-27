@@ -4,11 +4,6 @@ RUN apk --update add \
         git \
         && rm -fr /var/cache/apk/*
 
-
-COPY . /repo
-
 WORKDIR /repo
 
-RUN npm run build
-
-CMD ["npm", "run", "start"]
+CMD ["sh", "-c", "npm i && npm run dev-start"]
